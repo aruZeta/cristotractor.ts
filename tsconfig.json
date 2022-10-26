@@ -24,7 +24,8 @@
         "src/main.ts"
     ],
     "include": [
-        "./src/*.ts"
+        "./src/*.ts",
+        "./src/utils/*.ts"
     ],
     "exclude": [
         "node_modules",
