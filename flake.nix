@@ -15,7 +15,8 @@
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = [
           npmPkgs.nodePackages.npm
-          npmPkgs.nodePackages.typescript
+          pkgs.yarn
+          # npmPkgs.nodePackages.typescript
           npmPkgs.nodePackages.vscode-langservers-extracted
         ];
       };
