@@ -1,8 +1,12 @@
 import { Client } from "discord.js";
 import { config as setupEnvVars } from "dotenv";
 import { inviteLink } from "../utils/invite";
+import Config from "../interfaces/config";
+import config from "../config.json";
 
 export default class Cristotractor extends Client {
+  public config: Config = config;
+
   public init = async (
   ) => {
     setupEnvVars();
