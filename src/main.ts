@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { Client, IntentsBitField } from "discord.js";
 import { config as setupEnvVars } from "dotenv";
 import { inviteLink } from "./utils/invite";
 
@@ -6,7 +6,7 @@ setupEnvVars();
 
 console.log("Bot is starting ...");
 
-const discord = new Client({ intents: [] });
+const discord = new Client({ intents: [IntentsBitField.Flags.Guilds] });
 discord.login(process.env.token);
 
 discord.once("ready", (
