@@ -19,6 +19,7 @@
           pkgs.yarn
           # npmPkgs.nodePackages.typescript
           npmPkgs.nodePackages.vscode-langservers-extracted
+          npmPkgs.nodePackages.vscode-json-languageserver
         ];
       };
     };
