@@ -1,11 +1,16 @@
 import { Client } from "discord.js";
 import { config as setupEnvVars } from "dotenv";
-import { inviteLink } from "../utils/invite";
 import Config from "../interfaces/config";
 import config from "../config.json";
 
 export default class Cristotractor extends Client {
-  public config: Config = config;
+  public static config: Config = config;
+
+  public static genInviteLink = (): string =>
+    "https://discord.com/api/oauth2/authorize"
+    + `?client_id=${this.config.bot.clientId}`
+    + `&permissions=${this.config.bot.permissions}`
+    + `&scope=bot%20applications.commands`;
 
   public init = async (
   ) => {
@@ -23,9 +28,9 @@ export default class Cristotractor extends Client {
 
     this.once("ready", (
     ) => {
-      console.log(inviteLink);
       this.user?.setActivity("tractor go brrr");
       this.user?.setUsername("Cristotractor (exploding)");
+      console.log(Cristotractor.genInviteLink());
     });
   };
 }
