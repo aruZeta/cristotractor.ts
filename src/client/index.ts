@@ -12,6 +12,7 @@ import Config from "../interfaces/config";
 import config from "../config.json";
 import { readCommands } from "../utils/read";
 import { ICommand, TCommandRun } from "../interfaces/command";
+import mongoose from "mongoose";
 
 const commands: Collection<String, TCommandRun> = new Collection();
 
@@ -38,6 +39,19 @@ export default class Cristotractor extends Client {
       console.log(`Tractor started: ${this.user?.tag}`);
     }).catch((err: Error): void => {
       console.log("Cristotractor failed to start the engine, exploding");
+      console.error(err);
+      process.exit(1);
+    });
+
+    console.log("Cristotractor is starting to connect the data cable");
+    mongoose.connect(
+      `mongodb+srv://${process.env.mongoUser}:${process.env.mongoPswd}`
+      + "@data.0t392.mongodb.net/cristotractor?retryWrites=true&w=majority",
+      { dbName: "cristotractor" }
+    ).then((): void => {
+      console.log("Cristotractor succesfully connected the data cable!");
+    }).catch((err: Error): void => {
+      console.log("The data cable exploded");
       console.error(err);
       process.exit(1);
     });
