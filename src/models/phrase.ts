@@ -11,7 +11,6 @@ export interface IPhrase {
 };
 
 export const phraseSchema: Schema<IPhrase> = new Schema({
-  _id: { type: Schema.Types.ObjectId },
   letter: { type: String, required: true },
   phrase: { type: String, required: true },
   bias: { type: Number, required: true },

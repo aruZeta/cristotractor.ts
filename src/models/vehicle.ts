@@ -6,7 +6,6 @@ export interface IVehicle {
 };
 
 export const vehicleSchema: Schema<IVehicle> = new Schema({
-  _id: { type: Schema.Types.ObjectId },
   name: { type: String, required: true },
 });
 

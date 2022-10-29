@@ -9,7 +9,6 @@ export interface IAuthor {
 };
 
 export const authorSchema: Schema<IAuthor> = new Schema({
-  _id: { type: Schema.Types.ObjectId },
   name: { type: String, required: true },
   vehicles: { type: [Schema.Types.ObjectId], ref: VehicleModel },
 });
