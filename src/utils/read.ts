@@ -51,15 +51,16 @@ export const readSubcommands = (
   func: TSubcommandFn,
 ): ICommandOption[] => {
   const result: ICommandOption[] = Array();
+  const actualPath: string = resolve(path, "subcommands");
 
-  readdirSync(resolve(path, "subcommands"), { withFileTypes: true })
+  readdirSync(actualPath, { withFileTypes: true })
     .filter((item: Dirent): boolean => filterRequiredFiles(item))
     .forEach(async (item: Dirent): Promise<void> => {
       const { subcommand, run }: {
         subcommand: ICommandOption,
         run: TSubcommandRun,
       } = await import(resolve(
-        path,
+        actualPath,
         item.name + (item.isDirectory() ? "/index.ts" : "")
       ));
       func(subcommand, run);
