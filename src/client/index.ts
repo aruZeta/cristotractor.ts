@@ -2,7 +2,9 @@ import {
   Client,
   Collection,
   Interaction,
+  Routes
 } from "discord.js";
+import { REST } from "@discordjs/rest";
 import { config as setupEnvVars } from "dotenv";
 import path from "path";
 
@@ -35,6 +37,10 @@ export default class Cristotractor extends Client {
       process.exit(1);
     });
 
+    const rest = new REST({
+      version: "10"
+    }).setToken(<string>process.env.token);
+
     readCommands(
       path.resolve(__dirname, "../commands"),
       (command: ICommand): void => {
@@ -45,6 +51,15 @@ export default class Cristotractor extends Client {
     this.once("ready", async (
     ): Promise<void> => {
       if (!this.user) throw "F";
+      console.log("Cristotractor is starting to remember it's powers");
+      await rest.put(
+        Routes.applicationGuildCommands(
+          config.bot.clientId,
+          config.bot.mainGuild.id
+        ),
+        { body: this.commands.toJSON() }
+      );
+      console.log("Cristotractor remembered it's powers! It became bald tho.");
       console.log(Cristotractor.genInviteLink());
       this.user.setActivity("tractor go brrr");
       this.user.setUsername("Cristotractor (exploding)");
