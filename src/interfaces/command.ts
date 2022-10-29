@@ -15,7 +15,7 @@ export interface ICommandOption {
   name: string,
   description: string,
   type: ECommandOptionType;
-  required: boolean,
+  required?: boolean,
   choices?: ICommandOptionChoices[],
   options?: ICommandOption[],
   min_value?: number,
