@@ -8,13 +8,13 @@ const filterRequiredFiles = (
 ): boolean =>
   (item.isFile() && item.name.endsWith(".ts")) || item.isDirectory();
 
-export interface CommandF {
-  (command: ICommand): void;
-};
+export type TCommandFn = (
+  command: ICommand
+) => void;
 
 export const readCommands = (
   path: string,
-  func: CommandF
+  func: TCommandFn
 ): void => {
   readdirSync(path, { withFileTypes: true })
     .filter((item: Dirent): boolean => filterRequiredFiles(item))

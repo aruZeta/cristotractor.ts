@@ -5,10 +5,12 @@ export interface ICommand {
   description: string,
   type: ECommandType,
   options?: ICommandOption[],
-  run: (
-    interaction: CommandInteraction
-  ) => Promise<any>,
+  run: TCommandRun,
 };
+
+export type TCommandRun = (
+  interaction: CommandInteraction
+) => Promise<any>;
 
 export interface ICommandOption {
   name: string,

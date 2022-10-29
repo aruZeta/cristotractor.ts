@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 import { REST } from "@discordjs/rest";
 import { config as setupEnvVars } from "dotenv";
-import path from "path";
+import { resolve } from "path";
 
 import Config from "../interfaces/config";
 import config from "../config.json";
@@ -42,7 +42,7 @@ export default class Cristotractor extends Client {
     }).setToken(<string>process.env.token);
 
     readCommands(
-      path.resolve(__dirname, "../commands"),
+      resolve(__dirname, "../commands"),
       (command: ICommand): void => {
         this.commands.set(command.name, command);
       }
@@ -69,10 +69,12 @@ export default class Cristotractor extends Client {
       interaction: Interaction
     ): Promise<void> => {
       if (!interaction.isCommand()) return;
-      const command: ICommand | undefined =
-        this.commands.get(interaction.commandName);
-      if (!command) return;
-      try { command.run(interaction); }
+      try {
+        const command: ICommand | undefined =
+          this.commands.get(interaction.commandName);
+        if (!command) return;
+        await command.run(interaction);
+      }
       catch (error) {
         console.error(error);
         await interaction.reply({
