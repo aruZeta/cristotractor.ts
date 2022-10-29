@@ -1,9 +1,18 @@
-import { Client } from "discord.js";
+import {
+  Client,
+  Collection,
+  Interaction,
+} from "discord.js";
 import { config as setupEnvVars } from "dotenv";
+import path from "path";
+
 import Config from "../interfaces/config";
 import config from "../config.json";
+import { readCommands } from "../utils/read";
+import { Command } from "../interfaces/command";
 
 export default class Cristotractor extends Client {
+  public commands: Collection<string, Command> = new Collection();
   public static config: Config = config;
 
   public static genInviteLink = (): string =>
@@ -26,6 +35,11 @@ export default class Cristotractor extends Client {
       process.exit(1);
     });
 
+    readCommands(
+      path.resolve(__dirname, "../commands"),
+      (command: Command): void => { this.commands.set(command.name, command); }
+    );
+
     this.once("ready", async (
     ): Promise<void> => {
       if (!this.user) throw "F";
@@ -33,5 +47,22 @@ export default class Cristotractor extends Client {
       this.user.setActivity("tractor go brrr");
       this.user.setUsername("Cristotractor (exploding)");
     });
+
+    this.on("interactionCreate", async (
+      interaction: Interaction
+    ): Promise<void> => {
+      if (!interaction.isCommand()) return;
+      const command: Command | undefined =
+        this.commands.get(interaction.commandName);
+      if (!command) return;
+      try { command.run(interaction); }
+      catch (error) {
+        console.error(error);
+        await interaction.reply({
+          content: "Hubo un error ejecutando el comando.",
+          ephemeral: true
+        });
+      }
+    })
   };
 }
