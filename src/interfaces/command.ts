@@ -1,40 +1,40 @@
 import { CommandInteraction } from "discord.js";
 
-export interface Command {
+export interface ICommand {
   name: string,
   description: string,
-  type: CommandType,
-  options?: CommandOption[],
+  type: ECommandType,
+  options?: ICommandOption[],
   run: (
     interaction: CommandInteraction
-  ) => Promise<any> | any,
+  ) => Promise<any>,
 };
 
-export interface CommandOption {
+export interface ICommandOption {
   name: string,
   description: string,
-  type: CommandOptionType;
+  type: ECommandOptionType;
   required: boolean,
-  choices?: CommandOptionChoices[],
-  options?: CommandOption[],
+  choices?: ICommandOptionChoices[],
+  options?: ICommandOption[],
   min_value?: number,
   max_value?: number,
   min_length?: number,
   max_length?: number,
 };
 
-export interface CommandOptionChoices {
+export interface ICommandOptionChoices {
   name: string,
   value: string | number,
 };
 
-export enum CommandType {
+export enum ECommandType {
   chatInput = 1,
   user = 2,
   message = 3,
 };
 
-export enum CommandOptionType {
+export enum ECommandOptionType {
   subCommand = 1,
   subCommandGroup = 2,
   string = 3,

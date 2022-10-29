@@ -1,7 +1,7 @@
 import { Dirent, readdirSync } from "node:fs";
 import { resolve } from "path";
 
-import { Command } from "../interfaces/command";
+import { ICommand } from "../interfaces/command";
 
 const filterRequiredFiles = (
   item: Dirent
@@ -9,7 +9,7 @@ const filterRequiredFiles = (
   (item.isFile() && item.name.endsWith(".ts")) || item.isDirectory();
 
 export interface CommandF {
-  (command: Command): void;
+  (command: ICommand): void;
 };
 
 export const readCommands = (
@@ -19,7 +19,7 @@ export const readCommands = (
   readdirSync(path, { withFileTypes: true })
     .filter((item: Dirent): boolean => filterRequiredFiles(item))
     .forEach(async (item: Dirent): Promise<void> => {
-      const { command }: { command: Command } = await import(resolve(
+      const { command }: { command: ICommand } = await import(resolve(
         path,
         item.name + (item.isDirectory() ? "/index.js" : "")
       ));

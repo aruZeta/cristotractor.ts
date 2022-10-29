@@ -1,10 +1,12 @@
-import { Command, CommandType } from "../interfaces/command";
+import { CommandInteraction } from "discord.js";
 
-export const command: Command = {
+import { ICommand, ECommandType } from "../interfaces/command";
+
+export const command: ICommand = {
   name: "ping",
   description: "Responde con un pong.",
-  type: CommandType.chatInput,
-  run: async (interaction) => {
+  type: ECommandType.chatInput,
+  run: async (interaction: CommandInteraction): Promise<any> => {
     await interaction.reply("Pong!")
   },
 };

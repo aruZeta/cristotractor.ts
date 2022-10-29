@@ -9,10 +9,10 @@ import path from "path";
 import Config from "../interfaces/config";
 import config from "../config.json";
 import { readCommands } from "../utils/read";
-import { Command } from "../interfaces/command";
+import { ICommand } from "../interfaces/command";
 
 export default class Cristotractor extends Client {
-  public commands: Collection<string, Command> = new Collection();
+  public commands: Collection<string, ICommand> = new Collection();
   public static config: Config = config;
 
   public static genInviteLink = (): string =>
@@ -37,7 +37,9 @@ export default class Cristotractor extends Client {
 
     readCommands(
       path.resolve(__dirname, "../commands"),
-      (command: Command): void => { this.commands.set(command.name, command); }
+      (command: ICommand): void => {
+        this.commands.set(command.name, command);
+      }
     );
 
     this.once("ready", async (
@@ -52,7 +54,7 @@ export default class Cristotractor extends Client {
       interaction: Interaction
     ): Promise<void> => {
       if (!interaction.isCommand()) return;
-      const command: Command | undefined =
+      const command: ICommand | undefined =
         this.commands.get(interaction.commandName);
       if (!command) return;
       try { command.run(interaction); }
