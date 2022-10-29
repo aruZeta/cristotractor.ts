@@ -4,18 +4,20 @@ import { AuthorModel } from "./author";
 
 export interface IPhrase {
   _id: Types.ObjectId,
-  letter: number,
+  letter: string,
   phrase: string,
   bias: number,
-  author: Types.ObjectId,
+  author?: Types.ObjectId,
 };
 
 export const phraseSchema: Schema<IPhrase> = new Schema({
   _id: { type: Schema.Types.ObjectId },
-  letter: { type: Number, required: true },
+  letter: { type: String, required: true },
   phrase: { type: String, required: true },
   bias: { type: Number, required: true },
   author: { type: Schema.Types.ObjectId, ref: AuthorModel },
 });
 
 export const PhraseModel: Model<IPhrase> = model("Phrase", phraseSchema);
+
+PhraseModel.createCollection();

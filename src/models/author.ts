@@ -16,4 +16,6 @@ export const authorSchema: Schema<IAuthor> = new Schema({
   vehicles: { type: [Schema.Types.ObjectId], ref: VehicleModel },
 });
 
-export const AuthorModel: Model<IAuthor> = model("Phrase", authorSchema);
+export const AuthorModel: Model<IAuthor> = model("Author", authorSchema);
+
+AuthorModel.createCollection();

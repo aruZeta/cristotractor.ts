@@ -10,4 +10,6 @@ export const vehicleSchema: Schema<IVehicle> = new Schema({
   name: { type: String, required: true },
 });
 
-export const VehicleModel: Model<IVehicle> = model("Phrase", vehicleSchema);
+export const VehicleModel: Model<IVehicle> = model("Vehicle", vehicleSchema);
+
+VehicleModel.createCollection();
