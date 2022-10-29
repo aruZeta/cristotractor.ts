@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, CommandInteraction } from "discord.js";
 
 export interface ICommand {
   name: string,
@@ -23,6 +23,10 @@ export interface ICommandOption {
   min_length?: number,
   max_length?: number,
 };
+
+export type TSubcommandRun = (
+  interaction: ChatInputCommandInteraction,
+) => Promise<any>;
 
 export interface ICommandOptionChoices {
   name: string,
