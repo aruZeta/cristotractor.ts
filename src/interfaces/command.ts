@@ -49,6 +49,6 @@ export enum ECommandOptionType {
   channel = 7,
   role = 8,
   mentionable = 9,
-  number = 1,
-  attachment = 1,
+  number = 10,
+  attachment = 11,
 };
