@@ -27,7 +27,7 @@ export const readCommands = (
         run: TCommandRun,
       } = await import(resolve(
         path,
-        item.name + (item.isDirectory() ? "/index.js" : "")
+        item.name + (item.isDirectory() ? "/index.ts" : "")
       ));
       func(command, run);
       result.push(command);
