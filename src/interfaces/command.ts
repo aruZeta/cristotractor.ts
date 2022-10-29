@@ -5,7 +5,6 @@ export interface ICommand {
   description: string,
   type: ECommandType,
   options?: ICommandOption[],
-  run: TCommandRun,
 };
 
 export type TCommandRun = (

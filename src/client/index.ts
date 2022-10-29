@@ -11,10 +11,15 @@ import { resolve } from "path";
 import Config from "../interfaces/config";
 import config from "../config.json";
 import { readCommands } from "../utils/read";
-import { ICommand } from "../interfaces/command";
+import { ICommand, TCommandRun } from "../interfaces/command";
+
+const commands: Collection<String, TCommandRun> = new Collection();
 
 export default class Cristotractor extends Client {
-  public commands: Collection<string, ICommand> = new Collection();
+  public commands: ICommand[] = readCommands(
+    resolve(__dirname, "../commands"),
+    (command: ICommand, run: TCommandRun) => commands.set(command.name, run)
+  );
   public static config: Config = config;
 
   public static genInviteLink = (): string =>
@@ -41,13 +46,6 @@ export default class Cristotractor extends Client {
       version: "10"
     }).setToken(<string>process.env.token);
 
-    readCommands(
-      resolve(__dirname, "../commands"),
-      (command: ICommand): void => {
-        this.commands.set(command.name, command);
-      }
-    );
-
     this.once("ready", async (
     ): Promise<void> => {
       if (!this.user) throw "F";
@@ -57,7 +55,7 @@ export default class Cristotractor extends Client {
           config.bot.clientId,
           config.bot.mainGuild.id
         ),
-        { body: this.commands.toJSON() }
+        { body: this.commands }
       );
       console.log("Cristotractor remembered it's powers! It became bald tho.");
       console.log(Cristotractor.genInviteLink());
@@ -70,10 +68,10 @@ export default class Cristotractor extends Client {
     ): Promise<void> => {
       if (!interaction.isCommand()) return;
       try {
-        const command: ICommand | undefined =
-          this.commands.get(interaction.commandName);
+        const command: TCommandRun | undefined =
+          commands.get(interaction.commandName);
         if (!command) return;
-        await command.run(interaction);
+        await command(interaction);
       }
       catch (error) {
         console.error(error);
