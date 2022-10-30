@@ -16,7 +16,7 @@ export interface ICommandOption {
   description: string,
   type: ECommandOptionType;
   required?: boolean,
-  choices?: ICommandOptionChoices[],
+  choices?: ICommandOptionChoice[],
   options?: ICommandOption[],
   min_value?: number,
   max_value?: number,
@@ -28,7 +28,7 @@ export type TSubcommandRun = (
   interaction: ChatInputCommandInteraction,
 ) => Promise<any>;
 
-export interface ICommandOptionChoices {
+export interface ICommandOptionChoice {
   name: string,
   value: string | number,
 };
