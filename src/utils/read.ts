@@ -11,7 +11,7 @@ import {
 const filterRequiredFiles = (
   item: Dirent
 ): boolean =>
-  (item.isFile() && item.name.endsWith(".ts")) || item.isDirectory();
+  (item.isFile() && item.name.endsWith(".js")) || item.isDirectory();
 
 export type TCommandFn = (
   command: ICommand,
@@ -32,7 +32,7 @@ export const readCommands = async (
     const { command, run }: { command: ICommand, run: TCommandRun } =
       await import(resolve(
         path,
-        item.name + (item.isDirectory() ? "/index.ts" : "")
+        item.name + (item.isDirectory() ? "/index.js" : "")
       ));
     func(command, run);
     result.push(command);
@@ -59,7 +59,7 @@ export const readSubcommands = async (
       run: TSubcommandRun,
     } = await import(resolve(
       actualPath,
-      item.name + (item.isDirectory() ? "/index.ts" : "")
+      item.name + (item.isDirectory() ? "/index.js" : "")
     ));
     func(subcommand, run);
     result.push(subcommand);

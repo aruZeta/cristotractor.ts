@@ -3,6 +3,8 @@ import {
   Collection,
   CommandInteraction,
 } from "discord.js";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 import { readSubcommands } from "../../utils/read";
 import {
@@ -19,7 +21,7 @@ export const command: ICommand = {
   description: "Comandos de frases",
   type: ECommandType.chatInput,
 
-  options: readSubcommands(__dirname, (
+  options: await readSubcommands(dirname(fileURLToPath(import.meta.url)), (
     subcommand: ICommandOption,
     run: TSubcommandRun,
   ) => subcommands.set(subcommand.name, run)),
