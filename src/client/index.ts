@@ -40,6 +40,16 @@ export default class Cristotractor extends Client {
     + `&permissions=${this.config.bot.permissions}`
     + `&scope=bot%20applications.commands`;
 
+  public static removeAllCommands = (): void => {
+    Cristotractor.rest.put(
+      Routes.applicationGuildCommands(
+        config.bot.clientId,
+        config.bot.mainGuild.id
+      ), { body: [] }
+    ).then(() => console.log('Successfully deleted all guild commands!')
+    ).catch(console.error);
+  }
+
   public static updateMongoCache = async (): Promise<void> => {
     try {
       console.log("Fetching cache ...");
