@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 
 import Config from "../interfaces/config";
-import config from "../config.json";
+import config from "../config.json" assert {type: "json"};
 import { readCommands } from "../utils/read";
 import { ICommand, TCommandRun } from "../interfaces/command";
 
