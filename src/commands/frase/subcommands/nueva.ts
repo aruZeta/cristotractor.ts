@@ -1,12 +1,17 @@
 import { ChatInputCommandInteraction } from "discord.js";
+import { Types } from "mongoose";
 
 import { genDefaultEmbed, IEmbed } from "../../../interfaces/embed";
-import { ECommandOptionType, ICommandOption, ICommandOptionChoice } from "../../../interfaces/command";
+import {
+  ECommandOptionType,
+  ICommandOption,
+  ICommandOptionChoice
+} from "../../../interfaces/command";
 import { PhraseModel } from "../../../models/phrase";
 import { capitalize } from "../../../utils/string";
 import { checkAdmin, checkLetter } from "../../../utils/checking";
 import Cristotractor from "../../../client";
-import { Types } from "mongoose";
+import { LetterModel } from "../../../models/letter";
 
 export const subcommand: ICommandOption = {
   name: "nueva",
@@ -54,10 +59,22 @@ export const run = async (
       : null;
 
   PhraseModel.create({
-    letter: letter,
     phrase: phrase,
     bias: 0,
     author: authorID,
+  }).then(async (phraseDoc): Promise<void> => {
+    const letterDoc = await LetterModel.findOne({ letter: letter });
+    if (letterDoc) {
+      await LetterModel.updateOne(
+        { _id: letterDoc._id },
+        { $push: { phrases: phraseDoc._id } }
+      );
+    } else {
+      await LetterModel.create({
+        letter: letter,
+        phrases: [phraseDoc._id]
+      });
+    }
   });
 
   const msgEmbed: IEmbed = genDefaultEmbed();
