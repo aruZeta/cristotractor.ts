@@ -119,11 +119,13 @@ export default class Cristotractor extends Client {
         await command(interaction);
       }
       catch (error) {
-        console.error(error);
-        await interaction.reply({
-          content: "Hubo un error ejecutando el comando.",
-          ephemeral: true
-        });
+        if (error != "Check failed") {
+          console.error(error);
+          await interaction.reply({
+            content: "Hubo un error ejecutando el comando.",
+            ephemeral: true
+          });
+        }
       }
     })
   };

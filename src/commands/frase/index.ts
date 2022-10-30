@@ -29,16 +29,8 @@ export const command: ICommand = {
 export const run = async (
   interaction: ChatInputCommandInteraction,
 ): Promise<any> => {
-  try {
-    const subcommand: TSubcommandRun | undefined =
-      subcommands.get(interaction.options.getSubcommand())
-    if (!subcommand) return;
-    await subcommand(interaction);
-  } catch (error) {
-    console.error(error);
-    await interaction.reply({
-      content: "Hubo un error ejecutando el comando.",
-      ephemeral: true
-    });
-  }
+  const subcommand: TSubcommandRun | undefined =
+    subcommands.get(interaction.options.getSubcommand())
+  if (!subcommand) return;
+  await subcommand(interaction);
 };
