@@ -14,6 +14,9 @@ import Config from "../interfaces/config";
 import config from "../config.json" assert {type: "json"};
 import { readCommands } from "../utils/read";
 import { ICommand, TCommandRun } from "../interfaces/command";
+import { IMongoCache } from "../interfaces/mongoCache";
+import { AuthorModel, IAuthor } from "../models/author";
+import { IVehicle, VehicleModel } from "../models/vehicle";
 
 const commands: Collection<String, TCommandRun> = new Collection();
 const __dirname: string = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +42,13 @@ export default class Cristotractor extends Client {
 
   public static updateMongoCache = async (): Promise<void> => {
     try {
+      console.log("Fetching cache ...");
+      (await AuthorModel.find({})).forEach((author: IAuthor): void => {
+        Cristotractor.mongoCache.authors.set(author.name, author._id);
+      });
+      (await VehicleModel.find({})).forEach((vehicle: IVehicle): void => {
+        Cristotractor.mongoCache.authors.set(vehicle.name, vehicle._id);
+      });
       console.log("Cristotractor is starting to remember it's powers");
       Cristotractor.commands = await readCommands(
         resolve(__dirname, "../commands"),
