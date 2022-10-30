@@ -64,6 +64,21 @@ export const run = async (
 
   const msgEmbed: IEmbed = genDefaultEmbed();
   msgEmbed.title = "Frase añadida";
+  msgEmbed.fields = [{
+    name: "Letra:",
+    value: letter,
+    inline: true,
+  }, {
+    name: "Frase:",
+    value: phrase,
+    inline: false,
+  }];
+
+  if (author != null) msgEmbed.fields.splice(1, 0, {
+    name: "Autor:",
+    value: author,
+    inline: true,
+  });
 
   await interaction.reply({
     embeds: [msgEmbed],
