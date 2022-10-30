@@ -28,6 +28,10 @@ export default class Cristotractor extends Client {
     vehicles: new Collection(),
   };
 
+  public static rest: REST = new REST({
+    version: "10"
+  });
+
   public static genInviteLink = (): string =>
     "https://discord.com/api/oauth2/authorize"
     + `?client_id=${this.config.bot.clientId}`
@@ -37,6 +41,8 @@ export default class Cristotractor extends Client {
   public init = async (
   ): Promise<void> => {
     setupEnvVars();
+
+    Cristotractor.rest.setToken(<string>process.env.token);
 
     console.log("Cristotractor is starting the tractor's engine ...");
     this.login(process.env.token).then((): void => {
@@ -60,10 +66,6 @@ export default class Cristotractor extends Client {
       console.error(err);
       process.exit(1);
     });
-
-    const rest = new REST({
-      version: "10"
-    }).setToken(<string>process.env.token);
 
     this.once("ready", async (
     ): Promise<void> => {
