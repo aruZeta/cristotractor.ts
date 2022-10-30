@@ -21,11 +21,10 @@
         "baseUrl": "./"
     },
     "files": [
-        "src/main.ts"
+        "src/index.ts"
     ],
     "include": [
-        "./src/*.ts",
-        "./src/utils/*.ts"
+        "./src/**/*.ts"
     ],
     "exclude": [
         "node_modules",
