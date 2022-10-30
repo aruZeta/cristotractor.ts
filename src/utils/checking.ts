@@ -12,15 +12,15 @@ export const checkLetter = async (
     });
     throw "Check failed";
   } else {
-    letter.toLowerCase();
-    if (!Cristotractor.config.letters.includes(letter)) {
+    const actualLetter = letter.toLowerCase();
+    if (!Cristotractor.config.letters.includes(actualLetter)) {
       await interaction.reply({
         content: `\`${letter}\` no es una letra registrada!`,
         ephemeral: true
       });
       throw "Check failed";
     }
-    return letter;
+    return actualLetter;
   }
 }
 
