@@ -18,25 +18,25 @@ export type TCommandFn = (
   run: TCommandRun,
 ) => void;
 
-export const readCommands = (
-  path: string,
-  func: TCommandFn
-): ICommand[] => {
-  const result: ICommand[] = Array();
-
+const getItems = (path: string): Dirent[] =>
   readdirSync(path, { withFileTypes: true })
     .filter((item: Dirent): boolean => filterRequiredFiles(item))
-    .forEach(async (item: Dirent): Promise<void> => {
-      const { command, run }: {
-        command: ICommand,
-        run: TCommandRun,
-      } = await import(resolve(
+
+export const readCommands = async (
+  path: string,
+  func: TCommandFn
+): Promise<ICommand[]> => {
+  const result: ICommand[] = Array();
+
+  for (let item of getItems(path)) {
+    const { command, run }: { command: ICommand, run: TCommandRun } =
+      await import(resolve(
         path,
         item.name + (item.isDirectory() ? "/index.ts" : "")
       ));
-      func(command, run);
-      result.push(command);
-    })
+    func(command, run);
+    result.push(command);
+  }
 
   return result;
 };
@@ -46,26 +46,24 @@ export type TSubcommandFn = (
   run: TSubcommandRun,
 ) => void;
 
-export const readSubcommands = (
+export const readSubcommands = async (
   path: string,
   func: TSubcommandFn,
-): ICommandOption[] => {
+): Promise<ICommandOption[]> => {
   const result: ICommandOption[] = Array();
   const actualPath: string = resolve(path, "subcommands");
 
-  readdirSync(actualPath, { withFileTypes: true })
-    .filter((item: Dirent): boolean => filterRequiredFiles(item))
-    .forEach(async (item: Dirent): Promise<void> => {
-      const { subcommand, run }: {
-        subcommand: ICommandOption,
-        run: TSubcommandRun,
-      } = await import(resolve(
-        actualPath,
-        item.name + (item.isDirectory() ? "/index.ts" : "")
-      ));
-      func(subcommand, run);
-      result.push(subcommand);
-    })
+  for (let item of getItems(actualPath)) {
+    const { subcommand, run }: {
+      subcommand: ICommandOption,
+      run: TSubcommandRun,
+    } = await import(resolve(
+      actualPath,
+      item.name + (item.isDirectory() ? "/index.ts" : "")
+    ));
+    func(subcommand, run);
+    result.push(subcommand);
+  }
 
   return result;
 };
