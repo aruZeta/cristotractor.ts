@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types } from 'mongoose';
+import { Model, model, Schema, Types } from "mongoose";
 
 export interface IVehicle {
   _id: Types.ObjectId,

@@ -1,4 +1,4 @@
-import { Model, model, Schema, Types } from 'mongoose';
+import { Model, model, Schema, Types } from "mongoose";
 
 import { AuthorModel } from "./author";
 
