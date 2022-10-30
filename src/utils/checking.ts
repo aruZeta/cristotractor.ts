@@ -3,25 +3,25 @@ import Cristotractor from "../client/index";
 
 export const checkLetter = async (
   interaction: CommandInteraction,
-  letter: string
-): Promise<string> | never => {
+  letter: string | null
+): Promise<string | null> | never => {
+  if (letter === null) return null;
   if (letter.length != 1) {
     await interaction.reply({
       content: `\`${letter}\` no es una letra!`,
       ephemeral: true
     });
     throw "Check failed";
-  } else {
-    const actualLetter = letter.toLowerCase();
-    if (!Cristotractor.config.letters.includes(actualLetter)) {
-      await interaction.reply({
-        content: `\`${letter}\` no es una letra registrada!`,
-        ephemeral: true
-      });
-      throw "Check failed";
-    }
-    return actualLetter;
   }
+  const actualLetter = letter.toLowerCase();
+  if (!Cristotractor.config.letters.includes(actualLetter)) {
+    await interaction.reply({
+      content: `\`${letter}\` no es una letra registrada!`,
+      ephemeral: true
+    });
+    throw "Check failed";
+  }
+  return actualLetter;
 }
 
 export const checkAdmin = async (

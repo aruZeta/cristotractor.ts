@@ -45,7 +45,7 @@ export const run = async (
 ): Promise<any> => {
   await checkAdmin(interaction);
 
-  const letter: string = await checkLetter(
+  const letter: string = <string>await checkLetter(
     interaction,
     <string>interaction.options.getString("letra")
   );
