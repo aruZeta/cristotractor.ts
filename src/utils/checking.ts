@@ -37,4 +37,14 @@ export const checkAdmin = async (
     throw "Check failed";
   }
 }
+
+export const commonCheck = async (
+  interaction: CommandInteraction,
+  text: string
+): Promise<void> => {
+  await interaction.reply({
+    content: text,
+    ephemeral: true
+  });
+  throw "Check failed";
 }
