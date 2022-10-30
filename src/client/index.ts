@@ -23,6 +23,11 @@ export default class Cristotractor extends Client {
   );
   public static config: Config = config;
 
+  public static mongoCache: IMongoCache = {
+    authors: new Collection(),
+    vehicles: new Collection(),
+  };
+
   public static genInviteLink = (): string =>
     "https://discord.com/api/oauth2/authorize"
     + `?client_id=${this.config.bot.clientId}`
