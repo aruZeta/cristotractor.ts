@@ -1,7 +1,6 @@
 import {
   ChatInputCommandInteraction,
   Collection,
-  CommandInteraction,
 } from "discord.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
