@@ -2,7 +2,11 @@ import { ChatInputCommandInteraction } from "discord.js";
 
 import { genDefaultEmbed, IEmbed } from "../../../interfaces/embed";
 import { ECommandOptionType, ICommandOption, ICommandOptionChoice } from "../../../interfaces/command";
+import { PhraseModel } from "../../../models/phrase";
+import { capitalize } from "../../../utils/string";
+import { checkLetter } from "../../../utils/checking";
 import Cristotractor from "../../../client";
+import { Types } from "mongoose";
 
 export const subcommand: ICommandOption = {
   name: "nueva",
@@ -38,6 +42,26 @@ export const subcommand: ICommandOption = {
 export const run = async (
   interaction: ChatInputCommandInteraction,
 ): Promise<any> => {
+  const letter: string = await checkLetter(
+    interaction,
+    <string>interaction.options.getString("letra")
+  );
+  const phrase: string = capitalize(
+    <string>interaction.options.getString("frase")
+  );
+  const author: string | null = interaction.options.getString("autor");
+  const authorID: Types.ObjectId | null =
+    author
+      ? <Types.ObjectId>Cristotractor.mongoCache.authors.get(author)
+      : null;
+
+  PhraseModel.create({
+    letter: letter,
+    phrase: phrase,
+    bias: 0,
+    author: authorID,
+  });
+
   const msgEmbed: IEmbed = genDefaultEmbed();
   msgEmbed.title = "Frase añadida";
 
