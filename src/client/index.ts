@@ -6,21 +6,20 @@ import {
 } from "discord.js";
 import { REST } from "@discordjs/rest";
 import { config as setupEnvVars } from "dotenv";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 
 import Config from "../interfaces/config";
 import config from "../config.json";
 import { readCommands } from "../utils/read";
 import { ICommand, TCommandRun } from "../interfaces/command";
-import mongoose from "mongoose";
 
 const commands: Collection<String, TCommandRun> = new Collection();
+const __dirname: string = dirname(fileURLToPath(import.meta.url));
 
 export default class Cristotractor extends Client {
-  public commands: ICommand[] = readCommands(
-    resolve(__dirname, "../commands"),
-    (command: ICommand, run: TCommandRun) => commands.set(command.name, run)
-  );
+  public static commands: ICommand[] = [];
   public static config: Config = config;
 
   public static mongoCache: IMongoCache = {
@@ -37,6 +36,29 @@ export default class Cristotractor extends Client {
     + `?client_id=${this.config.bot.clientId}`
     + `&permissions=${this.config.bot.permissions}`
     + `&scope=bot%20applications.commands`;
+
+  public static updateMongoCache = async (): Promise<void> => {
+    try {
+      console.log("Cristotractor is starting to remember it's powers");
+      Cristotractor.commands = await readCommands(
+        resolve(__dirname, "../commands"),
+        (command: ICommand, run: TCommandRun): void => {
+          commands.set(command.name, run)
+        }
+      );
+      Cristotractor.rest.put(
+        Routes.applicationGuildCommands(
+          config.bot.clientId,
+          config.bot.mainGuild.id
+        ), { body: Cristotractor.commands }
+      );
+      console.log("Cristotractor remembered it's powers! It became bald tho.");
+    } catch (err) {
+      console.log("Cristotractor couldn't remembered it's powers :(");
+      console.error(err);
+      process.exit(1);
+    }
+  };
 
   public init = async (
   ): Promise<void> => {
@@ -61,6 +83,7 @@ export default class Cristotractor extends Client {
       { dbName: "cristotractor" }
     ).then((): void => {
       console.log("Cristotractor succesfully connected the data cable!");
+      Cristotractor.updateMongoCache()
     }).catch((err: Error): void => {
       console.log("The data cable exploded");
       console.error(err);
@@ -70,15 +93,6 @@ export default class Cristotractor extends Client {
     this.once("ready", async (
     ): Promise<void> => {
       if (!this.user) throw "F";
-      console.log("Cristotractor is starting to remember it's powers");
-      await rest.put(
-        Routes.applicationGuildCommands(
-          config.bot.clientId,
-          config.bot.mainGuild.id
-        ),
-        { body: this.commands }
-      );
-      console.log("Cristotractor remembered it's powers! It became bald tho.");
       console.log(Cristotractor.genInviteLink());
       this.user.setActivity("tractor go brrr");
       this.user.setUsername("Cristotractor (exploding)");
