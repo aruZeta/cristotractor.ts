@@ -117,8 +117,7 @@ export default class Cristotractor extends Client {
           commands.get(interaction.commandName);
         if (!command) return;
         await command(interaction);
-      }
-      catch (error) {
+      } catch (error) {
         if (error != "Check failed") {
           console.error(error);
           await interaction.reply({
