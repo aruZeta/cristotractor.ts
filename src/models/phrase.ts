@@ -4,14 +4,12 @@ import { AuthorModel } from "./author";
 
 export interface IPhrase {
   _id: Types.ObjectId,
-  letter: string,
   phrase: string,
   bias: number,
   author?: Types.ObjectId,
 };
 
 export const phraseSchema: Schema<IPhrase> = new Schema({
-  letter: { type: String, required: true },
   phrase: { type: String, required: true },
   bias: { type: Number, required: true },
   author: { type: Schema.Types.ObjectId, ref: AuthorModel },
