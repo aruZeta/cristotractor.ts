@@ -11,7 +11,7 @@ export interface ILetter {
 
 export const letterSchema: Schema<ILetter> = new Schema({
   letter: { type: String, required: true, unique: true },
-  phrases: { type: [Schema.Types.ObjectId], ref: PhraseModel },
+  phrases: { type: [Schema.Types.ObjectId], ref: PhraseModel, required: true },
   bias: { type: Number, required: true },
 });
 
