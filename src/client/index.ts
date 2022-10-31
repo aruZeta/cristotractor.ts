@@ -59,7 +59,7 @@ export default class Cristotractor extends Client {
       (await VehicleModel.find({})).forEach((vehicle: IVehicle): void => {
         Cristotractor.mongoCache.authors.set(vehicle.name, vehicle._id);
       });
-      console.log("Cristotractor is starting to remember it's powers");
+      console.log("Cristotractor is starting to remember it's powers ...");
       Cristotractor.commands = await readCommands(
         resolve(__dirname, "../commands"),
         (command: ICommand, run: TCommandRun): void => {
@@ -96,7 +96,7 @@ export default class Cristotractor extends Client {
       process.exit(1);
     });
 
-    console.log("Cristotractor is starting to connect the data cable");
+    console.log("Cristotractor is starting to connect the data cable ...");
     mongoose.connect(
       `mongodb+srv://${process.env.mongoUser}:${process.env.mongoPswd}`
       + "@data.0t392.mongodb.net/cristotractor?retryWrites=true&w=majority",
