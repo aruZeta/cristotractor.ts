@@ -54,7 +54,7 @@ export const run = async (
     msgEmbed.title = "Autores";
     msgEmbed.description = (await AuthorModel.find({})).map(
       (author: IAuthor): string =>
-        `${author.name} (id: \`${author._id.toString()}\`)`
+        `○ ${author.name}`
     ).join("\n") ?? "Ninguno";
   }
 
