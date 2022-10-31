@@ -12,6 +12,7 @@ import { capitalize } from "../../../utils/string";
 import { checkAdmin, checkLetter } from "../../../utils/checking";
 import Cristotractor from "../../../client";
 import { LetterModel } from "../../../models/letter";
+import { AuthorModel } from "../../../models/author";
 
 export const subcommand: ICommandOption = {
   name: "nueva",
@@ -61,7 +62,6 @@ export const run = async (
   PhraseModel.create({
     phrase: phrase,
     bias: 0,
-    author: authorID,
   }).then(async (phraseDoc): Promise<void> => {
     const letterDoc = await LetterModel.findOne({ letter: letter });
     if (letterDoc) {
@@ -72,9 +72,14 @@ export const run = async (
     } else {
       await LetterModel.create({
         letter: letter,
-        phrases: [phraseDoc._id]
+        phrases: [phraseDoc._id],
+        bias: 0
       });
     }
+    if (authorID) await AuthorModel.updateOne(
+      { _id: authorID },
+      { $push: { phrases: phraseDoc._id } }
+    );
   });
 
   const msgEmbed: IEmbed = genDefaultEmbed();

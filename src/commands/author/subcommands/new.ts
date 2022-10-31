@@ -34,6 +34,8 @@ export const run = async (
   AuthorModel.create({
     name: author,
     vehicles: [],
+    phrases: [],
+    bias: 0,
   });
 
   const msgEmbed: IEmbed = genDefaultEmbed();
