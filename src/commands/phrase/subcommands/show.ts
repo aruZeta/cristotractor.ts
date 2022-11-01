@@ -103,7 +103,7 @@ export const run = async (
       return (await PhraseModel.aggregate([
         onlyPhraseAndId,
         groupBy("$phrase", "$_id"),
-        ...toLimitedSizeArr,
+        ...toLimitedSizeArr(true),
       ]))[0] || [];
     };
   })();
