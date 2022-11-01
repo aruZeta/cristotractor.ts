@@ -1,4 +1,4 @@
-import { ButtonComponentData, ButtonStyle, ComponentType, Emoji } from "discord.js";
+import { ButtonComponentData, ButtonStyle, ComponentType } from "discord.js";
 import Cristotractor from "../client";
 import { IEmbed } from "../interfaces/embed";
 
