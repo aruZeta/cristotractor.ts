@@ -182,6 +182,16 @@ export const run = async (
   }
 
   let currentIndex: number = 0;
+  let options: SelectMenuComponentOptionData[][] = Array(phrases.length);
+
+  const checkOptionsCache = (): void => {
+    if (!options[currentIndex]) {
+      options[currentIndex] = phrases[currentIndex].map(
+        (phrase: string, i: number): SelectMenuComponentOptionData => {
+          return { label: phrase, value: i.toString() }
+        }
+      );
+    }
   }
 
   const updateEmbedPhrases = (): void => {
@@ -190,7 +200,23 @@ export const run = async (
     ).join("\n");
   };
 
-  updateEmbedPhrases();
+  const updateReply = (comps: boolean = true): any => {
+    checkOptionsCache();
+    updateEmbedPhrases();
+    return {
+      embeds: [msgEmbed],
+      components: comps ? [{
+        type: ComponentType.ActionRow,
+        components: [
+          ...(currentIndex == 0 ? [] : [backButton]),
+          ...(currentIndex == phrases.length - 1 ? [] : [forwardButton]),
+          toolsButton,
+        ]
+      }] : [],
+    };
+  };
+
+  await interaction.reply(updateReply());
 
   // TODO
   if (!msgEmbed.description || msgEmbed.description.length == 0)
