@@ -13,3 +13,24 @@ export const genDefaultEmbed = (): IEmbed => {
     },
   }
 };
+
+export const backButton: ButtonComponentData = {
+  type: ComponentType.Button,
+  style: ButtonStyle.Secondary,
+  emoji: { name: "⬅️" },
+  customId: "backButton",
+};
+
+export const forwardButton: ButtonComponentData = {
+  type: ComponentType.Button,
+  style: ButtonStyle.Secondary,
+  emoji: { name: "➡️" },
+  customId: "forwardButton",
+};
+
+export const toolsButton: ButtonComponentData = {
+  type: ComponentType.Button,
+  style: ButtonStyle.Secondary,
+  emoji: { name: "🛠️" },
+  customId: "toolsButton",
+};
