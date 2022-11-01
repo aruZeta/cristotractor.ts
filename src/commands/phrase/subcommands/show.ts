@@ -211,6 +211,9 @@ export const run = async (
     msgEmbed.description = phrases[currentIndex].map(
       (phrase: string): string => `○ ${phrase}`
     ).join("\n");
+    msgEmbed.footer = {
+      text: `Pagina ${currentIndex + 1}/${phrases.length}`
+    };
   };
 
   const updateReply = (comps: boolean = true): any => {

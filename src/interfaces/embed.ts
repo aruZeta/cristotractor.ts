@@ -12,7 +12,7 @@ export interface IEmbed {
 
 export interface IEmbedFooter {
   text: string,
-  icon_url: string,
+  icon_url?: string,
 };
 
 export interface IEmbedAuthor {
