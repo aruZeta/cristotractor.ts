@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMemberRoleManager } from "discord.js";
+import { CommandInteraction, GuildMemberRoleManager, MessageComponentInteraction } from "discord.js";
 import Cristotractor from "../client/index";
 
 export const checkLetter = async (
@@ -37,6 +37,13 @@ export const checkAdmin = async (
     throw "Check failed";
   }
 }
+
+export const isAdmin = (
+  interaction: MessageComponentInteraction
+): boolean =>
+  (<GuildMemberRoleManager>interaction.member?.roles).cache.has(
+    Cristotractor.config.bot.mainGuild.adminRoleId
+  )
 
 export const commonCheck = async (
   interaction: CommandInteraction,

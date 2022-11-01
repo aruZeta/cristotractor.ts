@@ -1,17 +1,30 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  ComponentType,
+  MessageComponentInteraction,
+  SelectMenuComponentOptionData,
+  SelectMenuInteraction,
+  TextInputStyle
+} from "discord.js";
 import { Types } from "mongoose";
 
-import { genDefaultEmbed, IEmbed } from "../../../interfaces/embed";
+import { IEmbed } from "../../../interfaces/embed";
+import {
+  forwardButton,
+  genDefaultEmbed,
+  toolsButton
+} from "../../../utils/embed";
 import {
   ECommandOptionType,
   ICommandOption,
   ICommandOptionChoice
 } from "../../../interfaces/command";
 import Cristotractor from "../../../client";
-import { checkLetter } from "../../../utils/checking";
+import { checkLetter, isAdmin } from "../../../utils/checking";
 import { LetterModel } from "../../../models/letter";
-import { IPhrase, PhraseModel } from "../../../models/phrase";
+import { PhraseModel } from "../../../models/phrase";
 import { AuthorModel } from "../../../models/author";
+import { backButton } from "../../../utils/embed";
 
 export const subcommand: ICommandOption = {
   name: "mostrar",
@@ -218,8 +231,154 @@ export const run = async (
 
   await interaction.reply(updateReply());
 
+  const collector =
+    interaction.channel!.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      time: 15000
+    });
 
-  await interaction.reply({
-    embeds: [msgEmbed],
+  collector.on("collect", async (
+    compInteraction: MessageComponentInteraction
+  ): Promise<void> => {
+    if (compInteraction.customId == "backButton") {
+      currentIndex -= 1
+      await compInteraction.update(updateReply());
+    } else if (compInteraction.customId == "forwardButton") {
+      currentIndex += 1
+      await compInteraction.update(updateReply());
+    } else if (compInteraction.customId == "toolsButton") {
+      if (compInteraction.user != interaction.user) return;
+      if (!isAdmin(compInteraction)) return;
+
+      interaction.editReply(updateReply(false));
+
+      await compInteraction.reply({
+        content: `${compInteraction.user} que quieres hacer?`,
+        components: [{
+          type: ComponentType.ActionRow,
+          components: [{
+            type: ComponentType.SelectMenu,
+            placeholder: "Eliminar frases",
+            customId: 'delete',
+            minValues: 1,
+            maxValues: options[currentIndex].length,
+            options: options[currentIndex],
+          }],
+        }, {
+          type: ComponentType.ActionRow,
+          components: [{
+            type: ComponentType.SelectMenu,
+            placeholder: "Modificar frase",
+            customId: 'edit',
+            minValues: 1,
+            maxValues: 1,
+            options: options[currentIndex],
+          }],
+        }],
+      });
+
+      const toolsCollector =
+        compInteraction.channel!.createMessageComponentCollector({
+          filter: (i) => i.user.id == interaction.user.id,
+          componentType: ComponentType.SelectMenu,
+          time: 15000
+        });
+
+      toolsCollector.on("collect", async (
+        toolsInteraction: SelectMenuInteraction
+      ): Promise<void> => {
+        const toolsIndex: number = currentIndex
+        const toolsIds: number[] =
+          toolsInteraction.values.map(
+            (id: string): number => parseInt(id, 10)
+          );
+
+        const toolsEmbed = genDefaultEmbed();
+        let interactionToUpdate;
+
+        if (toolsInteraction.customId == "delete") {
+          interactionToUpdate = toolsInteraction;
+
+          toolsEmbed.title = "Frases borradas";
+          toolsEmbed.description = toolsIds.map(
+            (id: number): string => `○ ${phrases[toolsIndex][id]}`
+          ).join("\n");
+
+          const phraseIDs: Types.ObjectId[] = toolsIds.map(
+            (id: number): Types.ObjectId => ids[currentIndex][id]
+          );
+
+          await PhraseModel.deleteMany({ _id: { $in: phraseIDs } });
+          if (authorID) {
+            await AuthorModel.updateOne(
+              { _id: authorID },
+              { $pull: { phrases: { $in: phraseIDs } } }
+            );
+          } else {
+            await AuthorModel.updateMany(
+              { $pull: { phrases: { $in: phraseIDs } } }
+            );
+          }
+          if (letter) {
+            await LetterModel.updateOne(
+              { letter: letter },
+              { $pull: { phrases: { $in: phraseIDs } } }
+            );
+          } else {
+            await LetterModel.updateMany(
+              { $pull: { phrases: { $in: phraseIDs } } }
+            );
+          }
+        } else if (toolsInteraction.customId == "edit") {
+          await toolsInteraction.showModal({
+            customId: 'phraseEditModal',
+            title: 'Editar frase',
+            components: [{
+              type: ComponentType.ActionRow,
+              components: [{
+                type: ComponentType.TextInput,
+                customId: 'phraseEdit',
+                value: phrases[toolsIndex][toolsIds[0]],
+                label: 'Nueva frase:',
+                style: TextInputStyle.Paragraph,
+                required: true,
+              }]
+            }]
+          });
+
+          const modalInteracton = await toolsInteraction.awaitModalSubmit({
+            time: 30000
+          });
+
+          if (!modalInteracton.isFromMessage()) return;
+          interactionToUpdate = modalInteracton
+
+          const editPhrase = modalInteracton.fields.getTextInputValue('phraseEdit');
+
+          toolsEmbed.title = "Frase modificada";
+          toolsEmbed.fields = [{
+            name: "Antigua frase",
+            value: `○ ${phrases[toolsIndex][toolsIds[0]]}`
+          }, {
+            name: "Nueva frase",
+            value: `○ ${editPhrase}` // TODO
+          }];
+
+          await PhraseModel.updateOne(
+            { _id: ids[toolsIndex][toolsIds[0]] },
+            { phrase: editPhrase }
+          )
+        }
+
+        await interactionToUpdate?.update({
+          content: `Por ${toolsInteraction.user}`,
+          embeds: [toolsEmbed],
+          components: []
+        });
+
+        toolsCollector.stop();
+        collector.stop();
+      })
+    }
   });
 };
