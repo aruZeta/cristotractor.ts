@@ -28,9 +28,10 @@ import { backButton } from "../../../utils/embed";
 import {
   onlyPhrases,
   onlyPhraseAndId,
-  toStringArr,
   toLimitedSizeArr,
-  toPhrases,
+  matchingPhrasesFromLetter,
+  toPhrasesArray,
+  groupBy,
 } from "../../../utils/mongoSearch";
 
 export const subcommand: ICommandOption = {
@@ -76,65 +77,33 @@ export const run = async (
   const { phrases, ids }: TPhraseAndIds = await (async (): Promise<TPhraseAndIds> => {
     if (author && letter) {
       msgEmbed.title = `Frases de \`${author}\` con la \`${letter}\``;
-      return (await AuthorModel.aggregate([{
-        $match: { _id: authorID }
-      }, onlyPhrases, {
-        $lookup: {
-          from: "letters",
-          let: { vals: "$phrases" },
-          pipeline: [{
-            $match: { letter: letter }
-          }, {
-            $project: {
-              _id: 0,
-              phrases: {
-                $map: {
-                  input: "$phrases",
-                  as: "pID",
-                  in: {
-                    $cond: {
-                      if: { $in: ["$$pID", "$$vals"] },
-                      then: "$$pID",
-                      else: null
-                    }
-                  }
-                }
-              }
-            }
-          }],
-          as: "phrases",
-        }
-      }, {
-        $unwind: { path: "$phrases" }
-      }, {
-        $lookup: {
-          from: "phrases",
-          localField: "phrases.phrases",
-          foreignField: "_id",
-          pipeline: [onlyPhraseAndId],
-          as: "phrases"
-        }
-      }, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
+      return (await AuthorModel.aggregate([
+        { $match: { _id: authorID } },
+        onlyPhrases,
+        matchingPhrasesFromLetter(letter),
+        { $unwind: { path: "$phrases" } },
+        ...toPhrasesArray("phrases.phrases", onlyPhraseAndId),
+      ]))[0] || [];
     } else if (author) {
       msgEmbed.title = `Frases de \`${author}\``;
-      return (await AuthorModel.aggregate([{
-        $match: { _id: authorID },
-      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
+      return (await AuthorModel.aggregate([
+        { $match: { _id: authorID } },
+        onlyPhrases,
+        ...toPhrasesArray("phrases", onlyPhraseAndId),
+      ]))[0] || [];
     } else if (letter) {
       msgEmbed.title = `Frases con la \`${letter}\``;
-      return (await LetterModel.aggregate([{
-        $match: { letter: letter },
-      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
+      return (await LetterModel.aggregate([
+        { $match: { letter: letter } },
+        onlyPhrases,
+        ...toPhrasesArray("phrases", onlyPhraseAndId),
+      ]))[0] || [];
     } else {
       msgEmbed.title = "Todas las frases";
       return (await PhraseModel.aggregate([
-        onlyPhraseAndId, {
-          $group: {
-            _id: null,
-            phrases: { $push: "$phrase" },
-            ids: { $push: "$_id" }
-          }
-        }, ...toLimitedSizeArr
+        onlyPhraseAndId,
+        groupBy("$phrase", "$_id"),
+        ...toLimitedSizeArr,
       ]))[0] || [];
     };
   })();
