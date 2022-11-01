@@ -173,7 +173,7 @@ export const run = async (
     };
   })();
 
-  if (!phrases) {
+  if (!phrases || !ids) {
     msgEmbed.description = "Ninguna";
     await interaction.reply({
       embeds: [msgEmbed],
