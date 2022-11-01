@@ -25,6 +25,13 @@ import { LetterModel } from "../../../models/letter";
 import { PhraseModel } from "../../../models/phrase";
 import { AuthorModel } from "../../../models/author";
 import { backButton } from "../../../utils/embed";
+import {
+  onlyPhrases,
+  onlyPhraseAndId,
+  toStringArr,
+  toLimitedSizeArr,
+  toPhrases,
+} from "../../../utils/mongoSearch";
 
 export const subcommand: ICommandOption = {
   name: "mostrar",
@@ -63,60 +70,6 @@ export const run = async (
 
   const msgEmbed: IEmbed = genDefaultEmbed();
   msgEmbed.description = "";
-
-  const onlyPhrases = {
-    $project: { _id: 0, phrases: 1 }
-  };
-
-  const onlyPhrasesAndIds = {
-    $project: { _id: 1, phrase: 1 }
-  };
-
-  const toPhrases = {
-    $lookup: {
-      from: "phrases",
-      localField: "phrases",
-      foreignField: "_id",
-      pipeline: [onlyPhrasesAndIds],
-      as: "phrases",
-    },
-  };
-
-  const toStringArr = [{
-    $unwind: { path: "$phrases" }
-  }, {
-    $group: {
-      _id: null,
-      phrases: { $push: "$phrases.phrase" },
-      ids: { $push: "$phrases._id" },
-    }
-  }];
-
-  const toLimitedSizeArr = [{
-    $addFields: { subArraySize: 25 }
-  }, {
-    $addFields: {
-      startingIndices: { $range: [0, { $size: "$phrases" }, "$subArraySize"] }
-    }
-  }, {
-    $project: {
-      _id: 0,
-      phrases: {
-        $map: {
-          input: "$startingIndices",
-          as: "i",
-          in: { $slice: ["$phrases", "$$i", "$subArraySize"] }
-        }
-      },
-      ids: {
-        $map: {
-          input: "$startingIndices",
-          as: "i",
-          in: { $slice: ["$ids", "$$i", "$subArraySize"] }
-        }
-      }
-    }
-  }];
 
   type TPhraseAndIds = { phrases: string[][] | undefined, ids: Types.ObjectId[][] | undefined };
 
@@ -158,7 +111,7 @@ export const run = async (
           from: "phrases",
           localField: "phrases.phrases",
           foreignField: "_id",
-          pipeline: [onlyPhrasesAndIds],
+          pipeline: [onlyPhraseAndId],
           as: "phrases"
         }
       }, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
@@ -175,7 +128,7 @@ export const run = async (
     } else {
       msgEmbed.title = "Todas las frases";
       return (await PhraseModel.aggregate([
-        onlyPhrasesAndIds, {
+        onlyPhraseAndId, {
           $group: {
             _id: null,
             phrases: { $push: "$phrase" },
