@@ -218,9 +218,6 @@ export const run = async (
 
   await interaction.reply(updateReply());
 
-  // TODO
-  if (!msgEmbed.description || msgEmbed.description.length == 0)
-    msgEmbed.description = "Ninguna";
 
   await interaction.reply({
     embeds: [msgEmbed],
