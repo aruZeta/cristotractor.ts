@@ -46,7 +46,7 @@ export default class Cristotractor extends Client {
         config.bot.clientId,
         config.bot.mainGuild.id
       ), { body: [] }
-    ).then(() => console.log('Successfully deleted all guild commands!')
+    ).then(() => console.log("Successfully deleted all guild commands!")
     ).catch(console.error);
   }
 

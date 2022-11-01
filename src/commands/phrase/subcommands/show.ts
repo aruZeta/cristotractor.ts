@@ -83,12 +83,12 @@ export const run = async (
   };
 
   const toStringArr = [{
-    $unwind: { path: '$phrases' }
+    $unwind: { path: "$phrases" }
   }, {
     $group: {
       _id: null,
-      phrases: { $push: '$phrases.phrase' },
-      ids: { $push: '$phrases._id' },
+      phrases: { $push: "$phrases.phrase" },
+      ids: { $push: "$phrases._id" },
     }
   }];
 
@@ -96,23 +96,23 @@ export const run = async (
     $addFields: { subArraySize: 25 }
   }, {
     $addFields: {
-      startingIndices: { $range: [0, { $size: '$phrases' }, '$subArraySize'] }
+      startingIndices: { $range: [0, { $size: "$phrases" }, "$subArraySize"] }
     }
   }, {
     $project: {
       _id: 0,
       phrases: {
         $map: {
-          input: '$startingIndices',
-          as: 'i',
-          in: { $slice: ['$phrases', '$$i', '$subArraySize'] }
+          input: "$startingIndices",
+          as: "i",
+          in: { $slice: ["$phrases", "$$i", "$subArraySize"] }
         }
       },
       ids: {
         $map: {
-          input: '$startingIndices',
-          as: 'i',
-          in: { $slice: ['$ids', '$$i', '$subArraySize'] }
+          input: "$startingIndices",
+          as: "i",
+          in: { $slice: ["$ids", "$$i", "$subArraySize"] }
         }
       }
     }
@@ -178,8 +178,8 @@ export const run = async (
         onlyPhrasesAndIds, {
           $group: {
             _id: null,
-            phrases: { $push: '$phrase' },
-            ids: { $push: '$_id' }
+            phrases: { $push: "$phrase" },
+            ids: { $push: "$_id" }
           }
         }, ...toLimitedSizeArr
       ]))[0] || [];
@@ -262,7 +262,7 @@ export const run = async (
           components: [{
             type: ComponentType.SelectMenu,
             placeholder: "Eliminar frases",
-            customId: 'delete',
+            customId: "delete",
             minValues: 1,
             maxValues: options[currentIndex].length,
             options: options[currentIndex],
@@ -272,7 +272,7 @@ export const run = async (
           components: [{
             type: ComponentType.SelectMenu,
             placeholder: "Modificar frase",
-            customId: 'edit',
+            customId: "edit",
             minValues: 1,
             maxValues: 1,
             options: options[currentIndex],
@@ -334,15 +334,15 @@ export const run = async (
           }
         } else if (toolsInteraction.customId == "edit") {
           await toolsInteraction.showModal({
-            customId: 'phraseEditModal',
-            title: 'Editar frase',
+            customId: "phraseEditModal",
+            title: "Editar frase",
             components: [{
               type: ComponentType.ActionRow,
               components: [{
                 type: ComponentType.TextInput,
-                customId: 'phraseEdit',
+                customId: "phraseEdit",
                 value: phrases[toolsIndex][toolsIds[0]],
-                label: 'Nueva frase:',
+                label: "Nueva frase:",
                 style: TextInputStyle.Paragraph,
                 required: true,
               }]
@@ -356,7 +356,7 @@ export const run = async (
           if (!modalInteracton.isFromMessage()) return;
           interactionToUpdate = modalInteracton
 
-          const editPhrase = modalInteracton.fields.getTextInputValue('phraseEdit');
+          const editPhrase = modalInteracton.fields.getTextInputValue("phraseEdit");
 
           toolsEmbed.title = "Frase modificada";
           toolsEmbed.fields = [{
