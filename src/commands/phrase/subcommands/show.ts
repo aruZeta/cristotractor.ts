@@ -105,7 +105,7 @@ export const run = async (
     }
   }];
 
-  type TPhraseAndIds = { phrases: string[][], ids: Types.ObjectId[][] };
+  type TPhraseAndIds = { phrases: string[][] | undefined, ids: Types.ObjectId[][] | undefined };
 
   const { phrases, ids }: TPhraseAndIds = await (async (): Promise<TPhraseAndIds> => {
     if (author && letter) {
@@ -148,17 +148,17 @@ export const run = async (
           pipeline: [onlyPhrasesAndIds],
           as: "phrases"
         }
-      }, ...toStringArr, ...toLimitedSizeArr]))[0];
+      }, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
     } else if (author) {
       msgEmbed.title = `Frases de \`${author}\``;
       return (await AuthorModel.aggregate([{
         $match: { _id: authorID },
-      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0]
+      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
     } else if (letter) {
       msgEmbed.title = `Frases con la \`${letter}\``;
       return (await LetterModel.aggregate([{
         $match: { letter: letter },
-      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0]
+      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0] || [];
     } else {
       msgEmbed.title = "Todas las frases";
       return (await PhraseModel.aggregate([
@@ -169,9 +169,17 @@ export const run = async (
             ids: { $push: '$_id' }
           }
         }, ...toLimitedSizeArr
-      ]))[0]
+      ]))[0] || [];
     };
   })();
+
+  if (!phrases) {
+    msgEmbed.description = "Ninguna";
+    await interaction.reply({
+      embeds: [msgEmbed],
+    });
+    return;
+  }
 
   let currentIndex: number = 0;
   }
