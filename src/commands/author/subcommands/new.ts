@@ -4,7 +4,8 @@ import { checkAdmin, commonCheck } from "../../../utils/checking";
 import { ECommandOptionType, ICommandOption } from "../../../interfaces/command";
 import { capitalize } from "../../../utils/string";
 import { AuthorModel } from "../../../models/author";
-import { genDefaultEmbed, IEmbed } from "../../../interfaces/embed";
+import { IEmbed } from "../../../interfaces/embed";
+import { genDefaultEmbed } from "../../../utils/embed";
 
 export const subcommand: ICommandOption = {
   name: "nuevo",

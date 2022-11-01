@@ -1,7 +1,8 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import { Types } from "mongoose";
 
-import { genDefaultEmbed, IEmbed } from "../../../interfaces/embed";
+import { IEmbed } from "../../../interfaces/embed";
+import { genDefaultEmbed } from "../../../utils/embed";
 import {
   ECommandOptionType,
   ICommandOption,
