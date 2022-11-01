@@ -51,22 +51,76 @@ export const run = async (
   const msgEmbed: IEmbed = genDefaultEmbed();
   msgEmbed.description = "";
 
-  if (author && letter) {
-    msgEmbed.title = `Frases de \`${author}\` con la \`${letter}\``;
-    msgEmbed.description = (await AuthorModel.aggregate([{
-      $match: { _id: authorID }
-    }, {
-      $project: { _id: 0, phrases: 1 }
-    }, {
-      $lookup: {
-        from: "letters",
-        pipeline: [
-          {
+  const onlyPhrases = {
+    $project: { _id: 0, phrases: 1 }
+  };
+
+  const onlyPhrasesAndIds = {
+    $project: { _id: 1, phrase: 1 }
+  };
+
+  const toPhrases = {
+    $lookup: {
+      from: "phrases",
+      localField: "phrases",
+      foreignField: "_id",
+      pipeline: [onlyPhrasesAndIds],
+      as: "phrases",
+    },
+  };
+
+  const toStringArr = [{
+    $unwind: { path: '$phrases' }
+  }, {
+    $group: {
+      _id: null,
+      phrases: { $push: '$phrases.phrase' },
+      ids: { $push: '$phrases._id' },
+    }
+  }];
+
+  const toLimitedSizeArr = [{
+    $addFields: { subArraySize: 25 }
+  }, {
+    $addFields: {
+      startingIndices: { $range: [0, { $size: '$phrases' }, '$subArraySize'] }
+    }
+  }, {
+    $project: {
+      _id: 0,
+      phrases: {
+        $map: {
+          input: '$startingIndices',
+          as: 'i',
+          in: { $slice: ['$phrases', '$$i', '$subArraySize'] }
+        }
+      },
+      ids: {
+        $map: {
+          input: '$startingIndices',
+          as: 'i',
+          in: { $slice: ['$ids', '$$i', '$subArraySize'] }
+        }
+      }
+    }
+  }];
+
+  type TPhraseAndIds = { phrases: string[][], ids: Types.ObjectId[][] };
+
+  const { phrases, ids }: TPhraseAndIds = await (async (): Promise<TPhraseAndIds> => {
+    if (author && letter) {
+      msgEmbed.title = `Frases de \`${author}\` con la \`${letter}\``;
+      return (await AuthorModel.aggregate([{
+        $match: { _id: authorID }
+      }, onlyPhrases, {
+        $lookup: {
+          from: "letters",
+          let: { vals: "$phrases" },
+          pipeline: [{
             $match: { letter: letter }
           }, {
-            $project: { _id: 0, phrases: 1 }
-          }, {
             $project: {
+              _id: 0,
               phrases: {
                 $map: {
                   input: "$phrases",
@@ -81,65 +135,56 @@ export const run = async (
                 }
               }
             }
+          }],
+          as: "phrases",
+        }
+      }, {
+        $unwind: { path: "$phrases" }
+      }, {
+        $lookup: {
+          from: "phrases",
+          localField: "phrases.phrases",
+          foreignField: "_id",
+          pipeline: [onlyPhrasesAndIds],
+          as: "phrases"
+        }
+      }, ...toStringArr, ...toLimitedSizeArr]))[0];
+    } else if (author) {
+      msgEmbed.title = `Frases de \`${author}\``;
+      return (await AuthorModel.aggregate([{
+        $match: { _id: authorID },
+      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0]
+    } else if (letter) {
+      msgEmbed.title = `Frases con la \`${letter}\``;
+      return (await LetterModel.aggregate([{
+        $match: { letter: letter },
+      }, onlyPhrases, toPhrases, ...toStringArr, ...toLimitedSizeArr]))[0]
+    } else {
+      msgEmbed.title = "Todas las frases";
+      return (await PhraseModel.aggregate([
+        onlyPhrasesAndIds, {
+          $group: {
+            _id: null,
+            phrases: { $push: '$phrase' },
+            ids: { $push: '$_id' }
           }
-        ],
-        as: "phrases",
-        let: { vals: "$phrases" }
-      }
-    }, {
-      $unwind: { path: "$phrases" }
-    }, {
-      $lookup: {
-        from: "phrases",
-        localField: "phrases.phrases",
-        foreignField: "_id",
-        pipeline: [{ $project: { _id: 0, phrase: 1 } }],
-        as: "phrases"
-      }
-    }]))[0]?.phrases.map(
-      (phrase: IPhrase): string => `○ ${phrase.phrase}`
-    ).join("\n");
-  } else if (author) {
-    msgEmbed.title = `Frases de \`${author}\``;
-    msgEmbed.description = (await AuthorModel.aggregate([{
-      $match: { _id: authorID },
-    }, {
-      $project: { _id: 0, phrases: 1 }
-    }, {
-      $lookup: {
-        from: "phrases",
-        localField: "phrases",
-        foreignField: "_id",
-        pipeline: [{ $project: { _id: 0, phrase: 1 } }],
-        as: "phrases",
-      },
-    }]))[0]?.phrases.map(
-      (phrase: IPhrase): string => `○ ${phrase.phrase}`
-    ).join("\n");
-  } else if (letter) {
-    msgEmbed.title = `Frases con la \`${letter}\``;
-    msgEmbed.description = (await LetterModel.aggregate([{
-      $match: { letter: letter },
-    }, {
-      $project: { _id: 0, phrases: 1 }
-    }, {
-      $lookup: {
-        from: "phrases",
-        localField: "phrases",
-        foreignField: "_id",
-        pipeline: [{ $project: { _id: 0, phrase: 1 } }],
-        as: "phrases",
-      },
-    }]))[0]?.phrases.map(
-      (phrase: IPhrase): string => `○ ${phrase.phrase}`
-    ).join("\n");
-  } else {
-    msgEmbed.title = "Todas las frases";
-    msgEmbed.description = (await PhraseModel.find({})).map(
-      (phrase: IPhrase): string => `○ ${phrase.phrase}`
-    ).join("\n");
+        }, ...toLimitedSizeArr
+      ]))[0]
+    };
+  })();
+
+  let currentIndex: number = 0;
   }
 
+  const updateEmbedPhrases = (): void => {
+    msgEmbed.description = phrases[currentIndex].map(
+      (phrase: string): string => `○ ${phrase}`
+    ).join("\n");
+  };
+
+  updateEmbedPhrases();
+
+  // TODO
   if (!msgEmbed.description || msgEmbed.description.length == 0)
     msgEmbed.description = "Ninguna";
 
