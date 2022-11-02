@@ -1,4 +1,5 @@
 import { ButtonComponentData, ButtonStyle, ComponentType } from "discord.js";
+import { Types } from "mongoose";
 import Cristotractor from "../client";
 import { IEmbed } from "../interfaces/embed";
 
@@ -14,23 +15,32 @@ export const genDefaultEmbed = (): IEmbed => {
   }
 };
 
-export const backButton: ButtonComponentData = {
+export const backButton = (
+  command: string,
+  id: string,
+): ButtonComponentData => ({
   type: ComponentType.Button,
   style: ButtonStyle.Secondary,
   emoji: { name: "⬅️" },
-  customId: "backButton",
-};
+  customId: `${command}->backButton->${id}`,
+});
 
-export const forwardButton: ButtonComponentData = {
+export const forwardButton = (
+  command: string,
+  id: string,
+): ButtonComponentData => ({
   type: ComponentType.Button,
   style: ButtonStyle.Secondary,
   emoji: { name: "➡️" },
-  customId: "forwardButton",
-};
+  customId: `${command}->forwardButton->${id}`,
+});
 
-export const toolsButton: ButtonComponentData = {
+export const toolsButton = (
+  command: string,
+  id: string,
+): ButtonComponentData => ({
   type: ComponentType.Button,
   style: ButtonStyle.Secondary,
   emoji: { name: "🛠️" },
-  customId: "toolsButton",
-};
+  customId: `${command}->toolsButton->${id}`,
+});
