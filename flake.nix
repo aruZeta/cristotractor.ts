@@ -17,6 +17,7 @@
           npmPkgs.nodePackages.npm
           pkgs.nodejs
           pkgs.yarn
+          pkgs.heroku
           # npmPkgs.nodePackages.typescript
           npmPkgs.nodePackages.vscode-langservers-extracted
           npmPkgs.nodePackages.vscode-json-languageserver
