@@ -115,7 +115,7 @@ export default class Cristotractor extends Client {
       if (!this.user) throw "F";
       console.log(Cristotractor.genInviteLink());
       this.user.setActivity("tractor go brrr");
-      this.user.setUsername("Cristotractor (exploding)");
+      this.user.setUsername("Cristotractor 2.0");
     });
 
     this.on("interactionCreate", async (
