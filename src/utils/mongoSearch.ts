@@ -2,6 +2,10 @@ export const onlyPhrases = {
   $project: { _id: 0, phrases: 1 }
 };
 
+export const onlyPhrase = {
+  $project: { _id: 0, phrase: 1 }
+};
+
 export const onlyPhraseAndId = {
   $project: { _id: 1, phrase: 1 }
 };
@@ -27,7 +31,7 @@ export const groupBy = (
   $group: {
     _id: null,
     phrases: { $push: pathPhrase },
-    ids: (includeIds ? { $push: pathId } : 0),
+    ...(includeIds ? { ids: { $push: pathId } } : 0),
   }
 });
 
@@ -58,18 +62,15 @@ export const toLimitedSizeArr = (
         in: { $slice: ["$phrases", "$$i", "$subArraySize"] }
       }
     },
-    ids: (includeIds
-      ? {
-        ids: {
-          $map: {
-            input: "$startingIndices",
-            as: "i",
-            in: { $slice: ["$ids", "$$i", "$subArraySize"] }
-          }
+    ...(includeIds ? {
+      ids: {
+        $map: {
+          input: "$startingIndices",
+          as: "i",
+          in: { $slice: ["$ids", "$$i", "$subArraySize"] }
         }
       }
-      : 0
-    ),
+    } : {}),
   }
 }];
 
@@ -112,3 +113,10 @@ export const toPhrasesArray = (
     ...toStringArr(includeIds),
     ...toLimitedSizeArr(includeIds),
   ]
+
+export const getRandomPhrase = (
+  path: string
+) => [
+    { $unwind: { path: path } },
+    { $sample: { size: 1 } },
+  ];
