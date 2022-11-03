@@ -11,19 +11,12 @@ import {
 import {
   ECommandOptionType,
   ICommandOption,
-  ICommandOptionChoice
 } from "../../../interfaces/command";
 import Cristotractor from "../../../client";
-import { checkLetter } from "../../../utils/checking";
-import { LetterModel } from "../../../models/letter";
 import { PhraseModel } from "../../../models/phrase";
-import { AuthorModel } from "../../../models/author";
 import {
-  onlyPhrases,
   onlyPhraseAndId,
   toLimitedSizeArr,
-  matchingPhrasesFromLetter,
-  toPhrasesArray,
   groupBy,
 } from "../../../utils/mongoSearch";
 import { updateReply } from "../../../utils/phrase/updatePhraseList";
@@ -52,7 +45,7 @@ export const run = async (
 
   const { phrases, ids }: TPhraseAndIds = (await PhraseModel.aggregate([
     onlyPhraseAndId,
-    { $match: { phrase: { $regex: search, $options: 'i' } } },
+    { $match: { phrase: { $regex: search, $options: "i" } } },
     groupBy("$phrase", "$_id"),
     ...toLimitedSizeArr(true),
   ]))[0] || [];
