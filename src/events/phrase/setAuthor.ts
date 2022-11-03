@@ -23,7 +23,6 @@ export const event = async (
     (await AuthorModel.findOne(
       { phrases: cache.ids[pageIndex][selectedID] }
     ))?.name || "Ninguno";
-  console.log(Cristotractor.mongoCache.authors.get('Paco'));
   if (!cache) return;
 
   await interaction.update({

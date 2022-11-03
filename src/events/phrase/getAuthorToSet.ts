@@ -35,13 +35,7 @@ export const event = async (
 
   const prevAuthorId = Cristotractor.mongoCache.authors.get(prevAuthor);
 
-  console.table([pageIndex, itemIndex]);
-  console.log(cache.ids[pageIndex][itemIndex]);
-  console.table([prevAuthor, author]);
-  console.log(authorID);
-
   if (prevAuthorId) {
-    console.log("Remove old");
     await AuthorModel.updateOne(
       { _id: prevAuthorId },
       { $pull: { phrases: cache.ids[pageIndex][itemIndex] } }
