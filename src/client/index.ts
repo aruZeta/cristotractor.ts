@@ -148,17 +148,8 @@ export default class Cristotractor extends Client {
           }
         }
       } else if (interaction.isMessageComponent()) {
-        const [command, event, id, pageIndex, itemIndex] =
-          interaction.customId.split("->");
-        const cache = Cristotractor.compInteractionCache.cache.get(id);
-        if (!cache) return;
-        Cristotractor.events[command][event](
-          id,
-          interaction,
-          cache,
-          pageIndex,
-          itemIndex
-        );
+        const [commandName, eventName, ...args] = interaction.customId.split("->")
+        Cristotractor.events[commandName][eventName](interaction, args);
       }
     })
   };

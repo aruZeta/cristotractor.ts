@@ -1,15 +1,16 @@
 import { ComponentType, MessageComponentInteraction, SelectMenuInteraction, TextInputStyle } from "discord.js";
+import Cristotractor from "../../client";
 import { PhraseModel } from "../../models/phrase";
 import { isAdmin } from "../../utils/checking";
 import { genDefaultEmbed } from "../../utils/embed";
 import { updateReply } from "../../utils/phrase/updatePhraseList";
 
 export const event = async (
-  id: string,
   interaction: MessageComponentInteraction,
-  cache: any,
-  index: number,
+  [id, pageIndex]: [string, number],
 ): Promise<void> => {
+  const cache = Cristotractor.compInteractionCache.cache.get(id);
+
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
@@ -25,7 +26,7 @@ export const event = async (
       components: [{
         type: ComponentType.TextInput,
         customId: "phraseEdit",
-        value: cache.phrases[index][selectedID],
+        value: cache.phrases[pageIndex][selectedID],
         label: "Nueva frase:",
         style: TextInputStyle.Paragraph,
         required: true,
@@ -44,14 +45,14 @@ export const event = async (
   embed.title = "Frase modificada";
   embed.fields = [{
     name: "Antigua frase",
-    value: `○ ${cache.phrases[index][selectedID]}`
+    value: `○ ${cache.phrases[pageIndex][selectedID]}`
   }, {
     name: "Nueva frase",
     value: `○ ${editPhrase}`
   }];
 
   await PhraseModel.updateOne(
-    { _id: cache.ids[index][selectedID] },
+    { _id: cache.ids[pageIndex][selectedID] },
     { phrase: editPhrase }
   )
 
@@ -61,6 +62,6 @@ export const event = async (
     components: []
   });
 
-  cache.phrases[index][selectedID] = editPhrase;
-  await cache.interaction.editReply(updateReply(id, index));
+  cache.phrases[pageIndex][selectedID] = editPhrase;
+  await cache.interaction.editReply(updateReply(id, pageIndex));
 };

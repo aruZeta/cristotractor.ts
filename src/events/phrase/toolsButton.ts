@@ -1,11 +1,13 @@
 import { ComponentType, MessageComponentInteraction } from "discord.js";
+import Cristotractor from "../../client";
 import { isAdmin } from "../../utils/checking";
 
 export const event = async (
-  id: string,
   interaction: MessageComponentInteraction,
-  cache: any,
+  [id]: [string, number, number],
 ): Promise<void> => {
+  const cache = Cristotractor.compInteractionCache.cache.get(id);
+
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
   const index = cache.currentIndex;

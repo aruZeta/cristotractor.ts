@@ -1,5 +1,6 @@
 import { MessageComponentInteraction, SelectMenuInteraction } from "discord.js";
 import { Types } from "mongoose";
+import Cristotractor from "../../client";
 import { AuthorModel } from "../../models/author";
 import { LetterModel } from "../../models/letter";
 import { PhraseModel } from "../../models/phrase";
@@ -8,11 +9,11 @@ import { genDefaultEmbed } from "../../utils/embed";
 import { updateReply } from "../../utils/phrase/updatePhraseList";
 
 export const event = async (
-  id: string,
   interaction: MessageComponentInteraction,
-  cache: any,
-  index: number,
+  [id, pageIndex]: [string, number],
 ): Promise<void> => {
+  const cache = Cristotractor.compInteractionCache.cache.get(id);
+
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
@@ -22,11 +23,11 @@ export const event = async (
   const embed = genDefaultEmbed();
   embed.title = "Frases borradas";
   embed.description = selectedIDs.map(
-    (id: number): string => `○ ${cache.phrases[index][id]}`
+    (id: number): string => `○ ${cache.phrases[pageIndex][id]}`
   ).join("\n");
 
   const phraseIDs: Types.ObjectId[] = selectedIDs.map(
-    (id: number): Types.ObjectId => cache.ids[index][id]
+    (id: number): Types.ObjectId => cache.ids[pageIndex][id]
   );
 
   await PhraseModel.deleteMany({ _id: { $in: phraseIDs } });
@@ -58,8 +59,8 @@ export const event = async (
   });
 
   selectedIDs.forEach((id: number) => {
-    cache.phrases[index].splice(id, 1);
-    cache.ids[index].splice(id, 1);
+    cache.phrases[pageIndex].splice(id, 1);
+    cache.ids[pageIndex].splice(id, 1);
   });
-  await cache.interaction.editReply(updateReply(id, index));
+  await cache.interaction.editReply(updateReply(id, pageIndex));
 };

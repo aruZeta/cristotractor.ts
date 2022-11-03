@@ -6,12 +6,11 @@ import { isAdmin } from "../../utils/checking";
 import { genDefaultEmbed } from "../../utils/embed";
 
 export const event = async (
-  id: string,
   interaction: MessageComponentInteraction,
-  cache: any,
-  pageIndex: number,
-  itemIndex: number,
+  [id, pageIndex, itemIndex]: [string, number, number],
 ): Promise<void> => {
+  const cache = Cristotractor.compInteractionCache.cache.get(id);
+
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
