@@ -67,3 +67,21 @@ export const readSubcommands = async (
 
   return result;
 };
+
+export const readEvents = async (
+  path: string,
+): Promise<any> => {
+  const result: any = {};
+
+  for (let dir of readdirSync(path)) {
+    result[dir] = {};
+    for (let item of readdirSync(resolve(path, dir))) {
+      const { event }: {
+        event: any
+      } = await import(resolve(path, dir, item));
+      result[dir][item.split(".")[0]] = event;
+    }
+  }
+
+  return result;
+}

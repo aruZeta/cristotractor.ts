@@ -26,7 +26,7 @@ import {
   toPhrasesArray,
   groupBy,
 } from "../../../utils/mongoSearch";
-import { updateReply } from "../../../utils/updateReply";
+import { updateReply } from "../../../utils/phrase/updatePhraseList";
 
 export const subcommand: ICommandOption = {
   name: "mostrar",

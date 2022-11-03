@@ -1,37 +1,30 @@
 import {
   Client,
   Collection,
-  ComponentType,
   Interaction,
   Routes,
-  SelectMenuInteraction,
-  TextInputStyle
 } from "discord.js";
 import { REST } from "@discordjs/rest";
 import { config as setupEnvVars } from "dotenv";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 
 import Config from "../interfaces/config";
 import config from "../config.json" assert {type: "json"};
-import { readCommands } from "../utils/read";
+import { readCommands, readEvents } from "../utils/read";
 import { ICommand, TCommandRun } from "../interfaces/command";
 import { IMongoCache } from "../interfaces/mongoCache";
 import { AuthorModel, IAuthor } from "../models/author";
 import { IVehicle, VehicleModel } from "../models/vehicle";
 import ComponentInteractionCache from "../utils/componentInteractionCache";
-import { isAdmin } from "../utils/checking";
-import { updateReply } from "../utils/updateReply";
-import { genDefaultEmbed } from "../utils/embed";
-import { PhraseModel } from "../models/phrase";
-import { LetterModel } from "../models/letter";
 
 const commands: Collection<String, TCommandRun> = new Collection();
 const __dirname: string = dirname(fileURLToPath(import.meta.url));
 
 export default class Cristotractor extends Client {
   public static commands: ICommand[] = [];
+  public static events: any;
   public static config: Config = config;
 
   public static mongoCache: IMongoCache = {
@@ -72,6 +65,7 @@ export default class Cristotractor extends Client {
         Cristotractor.mongoCache.authors.set(vehicle.name, vehicle._id);
       });
       console.log("Cristotractor is starting to remember it's powers ...");
+      Cristotractor.events = await readEvents(resolve(__dirname, "../events"));
       Cristotractor.commands = await readCommands(
         resolve(__dirname, "../commands"),
         (command: ICommand, run: TCommandRun): void => {
@@ -149,153 +143,10 @@ export default class Cristotractor extends Client {
           }
         }
       } else if (interaction.isMessageComponent()) {
-        const [command, item, id] = interaction.customId.split("->");
+        const [command, event, id] = interaction.customId.split("->");
         const cache = Cristotractor.compInteractionCache.cache.get(id);
         if (!cache) return;
-        if (command == "phrase/show") {
-          if (item == "backButton") {
-            cache.currentIndex -= 1
-            await interaction.update(updateReply(id));
-          } else if (item == "forwardButton") {
-            cache.currentIndex += 1
-            await interaction.update(updateReply(id));
-          } else if (item == "toolsButton") {
-            if (cache.interaction.user != interaction.user) return;
-            if (!isAdmin(interaction)) return;
-
-            await interaction.reply({
-              content: `${interaction.user} que quieres hacer?`,
-              components: [{
-                type: ComponentType.ActionRow,
-                components: [{
-                  type: ComponentType.SelectMenu,
-                  placeholder: "Eliminar frases",
-                  customId: `${command}->delete->${id}`,
-                  minValues: 1,
-                  maxValues: cache.options[cache.currentIndex].length,
-                  options: cache.options[cache.currentIndex],
-                }],
-              }, {
-                type: ComponentType.ActionRow,
-                components: [{
-                  type: ComponentType.SelectMenu,
-                  placeholder: "Modificar frase",
-                  customId: `${command}->edit->${id}`,
-                  minValues: 1,
-                  maxValues: 1,
-                  options: cache.options[cache.currentIndex],
-                }],
-              }],
-            });
-          } else if (item == "delete") {
-            if (cache.interaction.user != interaction.user) return;
-            if (!isAdmin(interaction)) return;
-
-            const index: number = cache.currentIndex;
-            const selectedIDs: number[] = (<SelectMenuInteraction>interaction).values.map(
-              (id: string): number => parseInt(id, 10)
-            );
-            const embed = genDefaultEmbed();
-            embed.title = "Frases borradas";
-            embed.description = selectedIDs.map(
-              (id: number): string => `○ ${cache.phrases[index][id]}`
-            ).join("\n");
-
-            const phraseIDs: Types.ObjectId[] = selectedIDs.map(
-              (id: number): Types.ObjectId => cache.ids[index][id]
-            );
-
-            await PhraseModel.deleteMany({ _id: { $in: phraseIDs } });
-            if (cache.authorID) {
-              await AuthorModel.updateOne(
-                { _id: cache.authorID },
-                { $pull: { phrases: { $in: phraseIDs } } }
-              );
-            } else {
-              await AuthorModel.updateMany(
-                { $pull: { phrases: { $in: phraseIDs } } }
-              );
-            }
-            if (cache.letter) {
-              await LetterModel.updateOne(
-                { letter: cache.letter },
-                { $pull: { phrases: { $in: phraseIDs } } }
-              );
-            } else {
-              await LetterModel.updateMany(
-                { $pull: { phrases: { $in: phraseIDs } } }
-              );
-            }
-
-            await interaction.update({
-              content: `Por ${interaction.user}`,
-              embeds: [embed],
-              components: []
-            });
-
-            selectedIDs.forEach((id: number) => {
-              cache.phrases[index].splice(id, 1);
-              cache.ids[index].splice(id, 1);
-            });
-            await cache.interaction.editReply(updateReply(id, index));
-          } else if (item == "edit") {
-            if (cache.interaction.user != interaction.user) return;
-            if (!isAdmin(interaction)) return;
-
-            const index: number = cache.currentIndex;
-            const selectedIDs: number[] = (<SelectMenuInteraction>interaction).values.map(
-              (id: string): number => parseInt(id, 10)
-            );
-            const embed = genDefaultEmbed();
-
-            await interaction.showModal({
-              customId: "phraseEditModal",
-              title: "Editar frase",
-              components: [{
-                type: ComponentType.ActionRow,
-                components: [{
-                  type: ComponentType.TextInput,
-                  customId: "phraseEdit",
-                  value: cache.phrases[index][selectedIDs[0]],
-                  label: "Nueva frase:",
-                  style: TextInputStyle.Paragraph,
-                  required: true,
-                }]
-              }]
-            });
-
-            const modalInteracton = await interaction.awaitModalSubmit({
-              time: 30000
-            });
-
-            if (!modalInteracton.isFromMessage()) return;
-
-            const editPhrase = modalInteracton.fields.getTextInputValue("phraseEdit");
-
-            embed.title = "Frase modificada";
-            embed.fields = [{
-              name: "Antigua frase",
-              value: `○ ${cache.phrases[index][selectedIDs[0]]}`
-            }, {
-              name: "Nueva frase",
-              value: `○ ${editPhrase}` // TODO
-            }];
-
-            await PhraseModel.updateOne(
-              { _id: cache.ids[index][selectedIDs[0]] },
-              { phrase: editPhrase }
-            )
-
-            await modalInteracton.update({
-              content: `Por ${interaction.user}`,
-              embeds: [embed],
-              components: []
-            });
-
-            cache.phrases[index][selectedIDs[0]] = editPhrase;
-            await cache.interaction.editReply(updateReply(id, index));
-          }
-        }
+        Cristotractor.events[command][event](id, interaction, cache);
       }
     })
   };

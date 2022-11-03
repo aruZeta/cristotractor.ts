@@ -1,6 +1,6 @@
 import { ComponentType, SelectMenuComponentOptionData } from "discord.js";
-import Cristotractor from "../client";
-import { backButton, forwardButton, toolsButton } from "./embed";
+import Cristotractor from "../../client";
+import { backButton, forwardButton, toolsButton } from "../embed";
 
 export const updateReply = (
   compID: string,
@@ -29,13 +29,13 @@ export const updateReply = (
       components: [
         ...(cache.currentIndex == 0
           ? []
-          : [backButton("phrase/show", compID)]
+          : [backButton("phrase", compID)]
         ),
         ...(cache.currentIndex == cache.phrases.length - 1
           ? []
-          : [forwardButton("phrase/show", compID)]
+          : [forwardButton("phrase", compID)]
         ),
-        toolsButton("phrase/show", compID),
+        toolsButton("phrase", compID),
       ]
     }] : [],
   };
