@@ -8,13 +8,14 @@ import { updateReply } from "../../utils/phrase/updatePhraseList";
 export const event = async (
   id: string,
   interaction: any,
+  _: any,
+  index: number,
 ): Promise<void> => {
   const cache = Cristotractor.compInteractionCache.cache.get(id);
 
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
-  const index: number = cache.currentIndex;
   const selectedIDs: number[] = (<SelectMenuInteraction>interaction).values.map(
     (id: string): number => parseInt(id, 10)
   );

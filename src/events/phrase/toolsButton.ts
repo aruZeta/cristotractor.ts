@@ -8,6 +8,7 @@ export const event = async (
 ): Promise<void> => {
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
+  const index = cache.currentIndex;
 
   await interaction.reply({
     content: `${interaction.user} que quieres hacer?`,
@@ -16,20 +17,20 @@ export const event = async (
       components: [{
         type: ComponentType.SelectMenu,
         placeholder: "Eliminar frases",
-        customId: `phrase->delete->${id}`,
+        customId: `phrase->delete->${id}->${index}`,
         minValues: 1,
-        maxValues: cache.options[cache.currentIndex].length,
-        options: cache.options[cache.currentIndex],
+        maxValues: cache.options[index].length,
+        options: cache.options[index],
       }],
     }, {
       type: ComponentType.ActionRow,
       components: [{
         type: ComponentType.SelectMenu,
         placeholder: "Modificar frase",
-        customId: `phrase->edit->${id}`,
+        customId: `phrase->edit->${id}->${index}`,
         minValues: 1,
         maxValues: 1,
-        options: cache.options[cache.currentIndex],
+        options: cache.options[index],
       }],
     }],
   });

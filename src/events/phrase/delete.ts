@@ -11,11 +11,11 @@ export const event = async (
   id: string,
   interaction: MessageComponentInteraction,
   cache: any,
+  index: number,
 ): Promise<void> => {
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
-  const index: number = cache.currentIndex;
   const selectedIDs: number[] = (<SelectMenuInteraction>interaction).values.map(
     (id: string): number => parseInt(id, 10)
   );
