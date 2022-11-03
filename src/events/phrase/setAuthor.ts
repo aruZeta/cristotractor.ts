@@ -24,6 +24,7 @@ export const event = async (
       { phrases: cache.ids[pageIndex][selectedID] }
     ))?.name || "Ninguno";
   console.log(Cristotractor.mongoCache.authors.get('Paco'));
+  if (!cache) return;
 
   await interaction.update({
     content:

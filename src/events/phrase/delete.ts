@@ -13,6 +13,7 @@ export const event = async (
   [id, pageIndex]: [string, number],
 ): Promise<void> => {
   const cache = Cristotractor.compInteractionCache.cache.get(id);
+  if (!cache) return;
 
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;

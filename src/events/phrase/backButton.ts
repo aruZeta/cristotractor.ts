@@ -7,6 +7,7 @@ export const event = async (
   [id]: [string],
 ): Promise<void> => {
   const cache = Cristotractor.compInteractionCache.cache.get(id);
+  if (!cache) return;
 
   cache.currentIndex -= 1
   await interaction.update(updateReply(id));
