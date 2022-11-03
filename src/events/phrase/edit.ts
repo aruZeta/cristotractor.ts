@@ -1,5 +1,4 @@
-import { ComponentType, SelectMenuInteraction, TextInputStyle } from "discord.js";
-import Cristotractor from "../../client";
+import { ComponentType, MessageComponentInteraction, SelectMenuInteraction, TextInputStyle } from "discord.js";
 import { PhraseModel } from "../../models/phrase";
 import { isAdmin } from "../../utils/checking";
 import { genDefaultEmbed } from "../../utils/embed";
@@ -7,12 +6,10 @@ import { updateReply } from "../../utils/phrase/updatePhraseList";
 
 export const event = async (
   id: string,
-  interaction: any,
-  _: any,
+  interaction: MessageComponentInteraction,
+  cache: any,
   index: number,
 ): Promise<void> => {
-  const cache = Cristotractor.compInteractionCache.cache.get(id);
-
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
