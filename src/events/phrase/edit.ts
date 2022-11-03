@@ -13,9 +13,8 @@ export const event = async (
   if (cache.interaction.user != interaction.user) return;
   if (!isAdmin(interaction)) return;
 
-  const selectedIDs: number[] = (<SelectMenuInteraction>interaction).values.map(
-    (id: string): number => parseInt(id, 10)
-  );
+  const selectedID: number =
+    parseInt((<SelectMenuInteraction>interaction).values[0], 0);
   const embed = genDefaultEmbed();
 
   await interaction.showModal({
@@ -26,11 +25,11 @@ export const event = async (
       components: [{
         type: ComponentType.TextInput,
         customId: "phraseEdit",
-        value: cache.phrases[index][selectedIDs[0]],
+        value: cache.phrases[index][selectedID],
         label: "Nueva frase:",
         style: TextInputStyle.Paragraph,
         required: true,
-      }]
+      }],
     }]
   });
 
@@ -45,14 +44,14 @@ export const event = async (
   embed.title = "Frase modificada";
   embed.fields = [{
     name: "Antigua frase",
-    value: `○ ${cache.phrases[index][selectedIDs[0]]}`
+    value: `○ ${cache.phrases[index][selectedID]}`
   }, {
     name: "Nueva frase",
-    value: `○ ${editPhrase}` // TODO
+    value: `○ ${editPhrase}`
   }];
 
   await PhraseModel.updateOne(
-    { _id: cache.ids[index][selectedIDs[0]] },
+    { _id: cache.ids[index][selectedID] },
     { phrase: editPhrase }
   )
 
@@ -62,6 +61,6 @@ export const event = async (
     components: []
   });
 
-  cache.phrases[index][selectedIDs[0]] = editPhrase;
+  cache.phrases[index][selectedID] = editPhrase;
   await cache.interaction.editReply(updateReply(id, index));
 };
