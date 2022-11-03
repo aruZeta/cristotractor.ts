@@ -32,6 +32,16 @@ export const event = async (
         maxValues: 1,
         options: cache.options[index],
       }],
+    }, {
+      type: ComponentType.ActionRow,
+      components: [{
+        type: ComponentType.SelectMenu,
+        placeholder: "Asignar autor",
+        customId: `phrase->setAuthor->${id}->${index}`,
+        minValues: 1,
+        maxValues: 1,
+        options: cache.options[index],
+      }],
     }],
   });
 }

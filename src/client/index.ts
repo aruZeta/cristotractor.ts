@@ -30,6 +30,7 @@ export default class Cristotractor extends Client {
   public static mongoCache: IMongoCache = {
     authors: new Collection(),
     vehicles: new Collection(),
+    authorOptions: new Array(),
   };
 
   public static compInteractionCache: ComponentInteractionCache =
@@ -60,8 +61,12 @@ export default class Cristotractor extends Client {
       console.log("Fetching cache ...");
       (await AuthorModel.find({})).forEach((author: IAuthor): void => {
         Cristotractor.mongoCache.authors.set(author.name, author._id);
+        Cristotractor.mongoCache.authorOptions.push({
+          label: author.name,
+          value: author.name,
+        });
       });
-      (await VehicleModel.find({})).forEach((vehicle: IVehicle): void => {
+      (await VehicleModel.find({})).forEach((vehicle: IVehicle, i: number): void => {
         Cristotractor.mongoCache.authors.set(vehicle.name, vehicle._id);
       });
       console.log("Cristotractor is starting to remember it's powers ...");
@@ -143,10 +148,17 @@ export default class Cristotractor extends Client {
           }
         }
       } else if (interaction.isMessageComponent()) {
-        const [command, event, id, index] = interaction.customId.split("->");
+        const [command, event, id, pageIndex, itemIndex] =
+          interaction.customId.split("->");
         const cache = Cristotractor.compInteractionCache.cache.get(id);
         if (!cache) return;
-        Cristotractor.events[command][event](id, interaction, cache, index);
+        Cristotractor.events[command][event](
+          id,
+          interaction,
+          cache,
+          pageIndex,
+          itemIndex
+        );
       }
     })
   };
