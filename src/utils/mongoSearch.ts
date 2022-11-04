@@ -162,7 +162,7 @@ export const getNotAssignedPhrases = (
     }, {
       $project: {
         phrases: { $map: { input: "$phrases", as: "p", in: "$$p.phrase" } },
-        ids: { $map: { input: '$phrases', as: 'p', in: '$$p._id' } }
+        ids: { $map: { input: "$phrases", as: "p", in: "$$p._id" } }
       }
     }
   ]

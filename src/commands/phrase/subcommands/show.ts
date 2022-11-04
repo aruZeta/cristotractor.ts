@@ -27,7 +27,6 @@ import {
   groupBy,
   mergeArrayOfArrays,
   getNotAssignedPhrases,
-  idsToPhrases,
 } from "../../../utils/mongoSearch";
 import { updateReply } from "../../../utils/phrase/updatePhraseList";
 

@@ -9,17 +9,14 @@ import {
   ICommandOptionChoice
 } from "../../../interfaces/command";
 import { PhraseModel } from "../../../models/phrase";
-import { capitalize } from "../../../utils/string";
-import { checkAdmin, checkLetter } from "../../../utils/checking";
+import { checkLetter } from "../../../utils/checking";
 import Cristotractor from "../../../client";
 import { LetterModel } from "../../../models/letter";
 import { AuthorModel } from "../../../models/author";
 import {
   idsToPhrases,
   matchingPhrasesFromLetter,
-  onlyPhraseAndId,
   onlyPhrase,
-  toStringArr,
   onlyPhrases,
   getRandomPhrase
 } from "../../../utils/mongoSearch";

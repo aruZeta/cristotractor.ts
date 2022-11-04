@@ -1,5 +1,4 @@
 import { ButtonComponentData, ButtonStyle, ComponentType } from "discord.js";
-import { Types } from "mongoose";
 import Cristotractor from "../client";
 import { IEmbed } from "../interfaces/embed";
 

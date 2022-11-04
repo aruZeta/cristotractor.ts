@@ -1,16 +1,11 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import { Types } from "mongoose";
 
-import { IEmbed } from "../../../interfaces/embed";
 import { genDefaultEmbed } from "../../../utils/embed";
 import {
   ECommandOptionType,
   ICommandOption,
-  ICommandOptionChoice
 } from "../../../interfaces/command";
 import { PhraseModel } from "../../../models/phrase";
-import { checkLetter } from "../../../utils/checking";
-import Cristotractor from "../../../client";
 import { LetterModel } from "../../../models/letter";
 import { AuthorModel } from "../../../models/author";
 import {
