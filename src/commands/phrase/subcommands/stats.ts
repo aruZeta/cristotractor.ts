@@ -47,6 +47,8 @@ export const run = async (
       letter: 1,
       count: { $size: "$phrases" }
     }
+  }, {
+    $sort: { letter: 1 }
   }]);
 
   const msgEmbed = genDefaultEmbed();
