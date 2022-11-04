@@ -120,3 +120,49 @@ export const getRandomPhrase = (
     { $unwind: { path: path } },
     { $sample: { size: 1 } },
   ];
+
+export const mergeArrayOfArrays = (
+  path: string,
+) => ({
+  $project: {
+    _id: 0,
+    mergedArray: {
+      $reduce: {
+        input: path,
+        initialValue: [],
+        in: { $concatArrays: ["$$value", "$$this"] }
+      }
+    }
+  }
+})
+
+export const getNotAssignedPhrases = (
+  path: string,
+) => [
+    {
+      $lookup: {
+        from: "phrases",
+        as: "phrases",
+        let: { "assignedPhrases": path },
+        pipeline: [{
+          $project: {
+            _id: 1,
+            phrase: {
+              $cond: {
+                if: { $in: ["$_id", "$$assignedPhrases"] },
+                then: null,
+                else: "$phrase"
+              }
+            }
+          }
+        }, {
+          $match: { phrase: { $ne: null } }
+        }]
+      }
+    }, {
+      $project: {
+        phrases: { $map: { input: "$phrases", as: "p", in: "$$p.phrase" } },
+        ids: { $map: { input: '$phrases', as: 'p', in: '$$p._id' } }
+      }
+    }
+  ]

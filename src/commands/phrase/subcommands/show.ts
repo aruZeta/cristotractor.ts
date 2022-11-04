@@ -25,6 +25,9 @@ import {
   matchingPhrasesFromLetter,
   toPhrasesArray,
   groupBy,
+  mergeArrayOfArrays,
+  getNotAssignedPhrases,
+  idsToPhrases,
 } from "../../../utils/mongoSearch";
 import { updateReply } from "../../../utils/phrase/updatePhraseList";
 
@@ -42,11 +45,15 @@ export const subcommand: ICommandOption = {
     description: "Autor de las frases",
     type: ECommandOptionType.string,
     required: false,
-    choices: Cristotractor.mongoCache.authors.map(
-      (_: any, key: string): ICommandOptionChoice => {
-        return { name: key, value: key };
-      }
-    ),
+    choices: ((): ICommandOptionChoice[] => {
+      const options = Cristotractor.mongoCache.authors.map(
+        (_: any, key: string): ICommandOptionChoice => {
+          return { name: key, value: key };
+        }
+      )
+      options.push({ name: "Ninguno", value: "Ninguno" });
+      return options;
+    })(),
   }],
 };
 
@@ -67,8 +74,18 @@ export const run = async (
 
   type TPhraseAndIds = { phrases: string[][] | undefined, ids: Types.ObjectId[][] | undefined };
 
-  const { phrases, ids }: TPhraseAndIds = await (async (): Promise<TPhraseAndIds> => {
-    if (author && letter) {
+  const { phrases, ids }: TPhraseAndIds = await (async (
+  ): Promise<TPhraseAndIds> => {
+    if (author == "Ninguno") {
+      msgEmbed.title = `Frases sin autor`;
+      return (await AuthorModel.aggregate([
+        onlyPhrases,
+        groupBy("$phrases", "", false),
+        mergeArrayOfArrays("$phrases"),
+        ...getNotAssignedPhrases("$mergedArray"),
+        ...toLimitedSizeArr(true),
+      ]))[0] || [];
+    } else if (author && letter) {
       msgEmbed.title = `Frases de \`${author}\` con la \`${letter}\``;
       return (await AuthorModel.aggregate([
         { $match: { _id: authorID } },
