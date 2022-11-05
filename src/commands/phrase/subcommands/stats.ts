@@ -59,15 +59,15 @@ export const run = async (
   }, {
     name: "Letras",
     value: letters.map(
-      ({ letter, count }) => `○ \`${letter}\`: \`${count}\``
+      ({ letter, count }) => `○ ${letter}: ${count}`
     ).join("\n"),
     inline: true,
   }, {
     name: "Autores",
     value: authors.map(
-      ({ name, count }) => `○ \`${name}\`: \`${count}\``
+      ({ name, count }) => `○ ${name}: ${count}`
     ).join("\n")
-      + `\n○ \`Sin hogar\`: \`${noAuthor}\``,
+      + `\n○ Sin hogar: ${noAuthor}`,
     inline: true,
   }];
 
