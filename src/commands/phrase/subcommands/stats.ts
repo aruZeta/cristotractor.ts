@@ -62,11 +62,13 @@ export const run = async (
       ({ name, count }) => `○ \`${name}\`: \`${count}\``
     ).join("\n")
       + `\n○ \`Sin hogar\`: \`${noAuthor}\``,
+    inline: true,
   }, {
     name: "Letras",
     value: letters.map(
       ({ letter, count }) => `○ \`${letter}\`: \`${count}\``
     ).join("\n"),
+    inline: true,
   }];
 
   await interaction.reply({
