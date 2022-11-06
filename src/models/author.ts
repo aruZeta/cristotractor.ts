@@ -9,6 +9,7 @@ export interface IAuthor {
   vehicles: Types.ObjectId[],
   phrases: Types.ObjectId[],
   bias: number,
+  color: string,
 };
 
 export const authorSchema: Schema<IAuthor> = new Schema({
@@ -16,6 +17,7 @@ export const authorSchema: Schema<IAuthor> = new Schema({
   vehicles: { type: [Schema.Types.ObjectId], ref: VehicleModel, required: true },
   phrases: { type: [Schema.Types.ObjectId], ref: PhraseModel, required: true },
   bias: { type: Number, required: true },
+  color: { type: String, required: true },
 });
 
 export const AuthorModel: Model<IAuthor> = model("Author", authorSchema);
