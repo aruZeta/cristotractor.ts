@@ -41,15 +41,26 @@ export const run = async (
   const msgEmbed: IEmbed = genDefaultEmbed();
 
   if (authorID) {
-    let desc: string = "";
-    (await AuthorModel.findById(authorID))?.vehicles.forEach(
-      async (vehicleID: Types.ObjectId): Promise<string> =>
-        desc += <string>(await VehicleModel.findById(vehicleID))?.name + "\n"
-    );
+    const vehicles = (await AuthorModel.aggregate([
+      { $match: { _id: authorID } },
+      { $project: { _id: 0, vehicles: 1 } },
+      {
+        $lookup: {
+          from: "vehicles",
+          localField: "vehicles",
+          foreignField: "_id",
+          pipeline: [{ $project: { _id: 0, name: 1 } }],
+          as: "vehicles",
+        }
+      },
+    ]))[0].vehicles || [];
     msgEmbed.title = `${author}`;
+    console.log(vehicles);
     msgEmbed.fields = [{
       name: "Vehiculos:",
-      value: desc.length == 0 ? "Ninguno" : desc,
+      value: vehicles
+        ? vehicles.map((v: any): string => `○ ${v.name}`).join("\n")
+        : "Ninguno",
     }];
   } else {
     msgEmbed.title = "Autores";
