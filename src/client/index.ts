@@ -67,7 +67,7 @@ export default class Cristotractor extends Client {
         });
       });
       (await VehicleModel.find({})).forEach((vehicle: IVehicle, i: number): void => {
-        Cristotractor.mongoCache.authors.set(vehicle.name, vehicle._id);
+        Cristotractor.mongoCache.vehicles.set(vehicle.name, vehicle._id);
       });
       console.log("Cristotractor is starting to remember it's powers ...");
       Cristotractor.events = await readEvents(resolve(__dirname, "../events"));
